@@ -1,10 +1,10 @@
-const CACHE_NAME = 'kennel-manager-pwa-v3-logo';
+const CACHE_NAME = 'kennel-manager-pwa-v4-root-icons';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/kennel-manager-logo-192-v3.png',
-  './icons/kennel-manager-logo-512-v3.png'
+  './kennel-manager-logo-192-v3.png',
+  './kennel-manager-logo-512-v3.png'
 ];
 
 self.addEventListener('install', event => {
