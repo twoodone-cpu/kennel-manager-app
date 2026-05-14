@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kennel-manager-pwa-v5-header-tags';
+const CACHE_NAME = 'kennel-manager-v7-blue-lower-right-labels';
 const APP_SHELL = [
   './',
   './index.html',

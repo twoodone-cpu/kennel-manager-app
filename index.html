@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=5">
-<link rel="icon" type="image/png" sizes="192x192" href="kennel-manager-logo-192-v3.png?v=4">
-<link rel="apple-touch-icon" href="kennel-manager-logo-192-v3.png?v=4">
+<link rel="manifest" href="manifest.webmanifest?v=7">
+<link rel="icon" type="image/png" sizes="192x192" href="kennel-manager-logo-192-v3.png?v=5">
+<link rel="apple-touch-icon" href="kennel-manager-logo-192-v3.png?v=5">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{width:100%;overflow-x:auto}body{background:#d7dade;font-family:Arial,Helvetica,sans-serif;color:#25384a;min-height:100dvh;overflow:auto;--mobile-scale:.83;--canvas-zoom:1;--board-height:1260px;--canvas-pan-x:0px;--canvas-pan-y:0px;touch-action:none;overscroll-behavior:none}
@@ -18,7 +18,7 @@
   .topbar{margin:10px 14px 12px;background:#baf2d0;border-radius:18px;height:96px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.18);overflow:hidden}
   .date-wrap{display:flex;align-items:stretch;justify-content:center;gap:12px;flex:1;min-width:0}.date-center{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
   .date-arrow-wrap{display:flex;align-items:stretch;gap:4px;align-self:stretch}
-  .date-arrow-btn{width:72px;height:100%;border:none;border-radius:18px;background:rgba(255,255,255,.5);color:#1e3a5f;font-size:34px;font-weight:900;box-shadow:0 2px 5px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.45);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .date-arrow-btn{width:48px;height:100%;border:none;border-radius:999px;background:rgba(255,255,255,.5);color:#1e3a5f;font-size:38px;font-weight:900;box-shadow:0 2px 5px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding-bottom:4px}
   .date-arrow-btn:active{transform:scale(.98);background:#dbeafe}
   .date-title{font-size:31px;font-weight:900;color:#0f1d33;letter-spacing:.2px;text-align:center;cursor:pointer}
   .date-title .current-day{color:#facc15;-webkit-text-stroke:1px #000;text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000,0 -1px 0 #000,0 2px 3px rgba(0,0,0,.28)}.date-title .non-current-day{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}.today-badge{display:inline-flex;align-items:center;justify-content:center;margin-top:4px;padding:2px 8px;border-radius:999px;background:#facc15;color:#111827;font-size:10px;font-weight:900;letter-spacing:.7px;box-shadow:0 1px 4px rgba(0,0,0,.2);border:1px solid rgba(0,0,0,.18)}
@@ -59,8 +59,7 @@
   .status-chip{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:24px;padding:2px 8px;border-radius:7px;font-size:15px;font-weight:900;line-height:1;color:#111827;border:2px solid rgba(0,0,0,.18);box-shadow:0 2px 4px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35)}
   .status-chip.pu{background:#22c55e;color:#fff;border-color:#15803d}.status-chip.do{background:#fde047;color:#111827;border-color:#ca8a04}.status-time{display:inline-flex;align-items:center;height:24px;padding:0 3px;font-size:15px;font-weight:900;line-height:1}.status-time.pu{color:#15803d}.status-time.do{color:#111827}
   .tag{position:absolute;left:8px;bottom:5px;font-size:17px;font-weight:900;font-style:normal;color:#111827;text-transform:uppercase;letter-spacing:.3px}
-  .tag-bird{left:auto;right:8px;bottom:8px;color:#111827;font-size:18px;font-weight:900}
-  .tag-tall{left:auto;right:8px;bottom:8px;display:flex;align-items:center;justify-content:center;min-width:58px;height:26px;padding:0 12px;border:2px solid #111827;border-radius:999px;background:#facc15;color:#000;font-size:15px;font-weight:900;letter-spacing:.5px;box-shadow:0 2px 4px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.35);z-index:5}
+  .tag-bird,.tag-tall{left:auto;right:8px;bottom:8px;display:flex;align-items:center;justify-content:center;min-width:82px;height:34px;padding:0 14px;border:2px solid #3b82f6;border-radius:999px;background:#dbeafe;color:#111827;font-size:18px;font-weight:900;letter-spacing:.5px;font-style:normal;box-shadow:0 2px 5px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.45);z-index:5}
   .tag-box{left:auto;right:8px;bottom:8px;display:flex;align-items:center;justify-content:center;min-width:56px;height:26px;padding:0 12px;border:2px solid #111827;border-radius:999px;background:#fff;color:#000;font-size:15px;font-weight:900;letter-spacing:.5px;box-shadow:0 2px 4px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.45);z-index:5}
   .tag.right{left:auto;right:8px}
 
@@ -79,11 +78,11 @@
   @media(max-width:900px){
     body{overflow:auto;background:#d7dade}
     .topbar{height:82px;margin:8px 8px 10px;padding:0 8px;border-radius:16px;width:calc(100vw - 16px);min-width:0;gap:6px;transform:none;margin-bottom:10px}
-    .date-wrap{gap:6px;min-width:0;justify-content:flex-start;flex:1;overflow:hidden;align-items:stretch}
+    .date-wrap{gap:5px;min-width:0;justify-content:flex-start;flex:1;overflow:hidden;align-items:stretch}
     .date-arrow-wrap{gap:4px;flex-shrink:0;align-self:stretch;align-items:stretch}
-    .date-arrow-btn{width:68px;height:100%;border-radius:16px;font-size:34px;flex-shrink:0}
+    .date-arrow-btn{width:44px;height:100%;border-radius:999px;font-size:38px;flex-shrink:0}
     .date-center{min-width:0;flex-shrink:1}
-    .date-title{font-size:18px;white-space:nowrap;line-height:1}
+    .date-title{font-size:18px;white-space:nowrap;line-height:1;max-width:150px;overflow:hidden;text-overflow:clip}
     .today-badge{font-size:8px;padding:1px 6px;margin-top:2px}
     .cal-icon-btn{width:32px;height:32px;border-radius:10px;flex-shrink:0;margin-left:2px;margin-right:2px;position:relative;z-index:1}
     .refresh,.fullscreen-btn{width:34px;height:34px;border-radius:10px;margin-right:0;flex-shrink:0}.refresh svg,.fullscreen-btn svg{width:18px;height:18px}
@@ -97,7 +96,7 @@
   @media(max-width:900px) and (orientation:landscape){
     body{overflow:auto}
     .topbar{height:66px;margin:8px 10px 10px;padding:0 14px;min-width:0;width:calc(100vw - 20px)}
-    .date-title{font-size:25px}
+    .date-title{font-size:25px;max-width:none}
     .modebtn{min-width:64px;height:48px;font-size:16px}
     .board{margin:0 10px 12px;transform-origin:0 0;transform:translate(var(--canvas-pan-x),var(--canvas-pan-y)) scale(calc(var(--mobile-scale) * var(--canvas-zoom)));margin-bottom:0;will-change:transform}
   }
