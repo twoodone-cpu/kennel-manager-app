@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kennel-manager-v7-blue-lower-right-labels';
+const CACHE_NAME = 'kennel-manager-v8-fixed-header-pills';
 const APP_SHELL = [
   './',
   './index.html',
