@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kennel-manager-v8-fixed-header-pills';
+const CACHE_NAME = 'kennel-manager-v10-2-no-fullscreen';
 const APP_SHELL = [
   './',
   './index.html',
