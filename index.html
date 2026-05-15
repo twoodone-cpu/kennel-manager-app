@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=9">
+<link rel="manifest" href="manifest.webmanifest?v=11">
 <link rel="icon" type="image/png" sizes="192x192" href="kennel-manager-logo-192-v3.png?v=5">
 <link rel="apple-touch-icon" href="kennel-manager-logo-192-v3.png?v=5">
 <style>
@@ -30,6 +30,13 @@
   .refresh{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.45);border:none;flex:0 0 auto}.refresh svg{width:24px;height:24px;stroke:#f4a300;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
   .modebtn{min-width:48px;height:48px;padding:0 10px;border:none;border-radius:12px;color:#fff;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,.16);white-space:nowrap;cursor:pointer;flex:0 0 auto}
   .modebtn.r{background:#f59e0b;border:2px solid rgba(255,255,255,.65)}.modebtn.r.active{outline:3px solid #fff36d}
+  .overflow-btn{width:28px;height:48px;border:none;border-radius:12px;background:transparent;color:#0f172a;font-size:30px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;margin-left:-2px;padding:0 0 4px 0}
+  .overflow-btn:active{transform:scale(.96);background:rgba(255,255,255,.34)}
+  .overflow-menu{position:fixed;top:76px;right:18px;z-index:1000;width:205px;background:#f8fafc;border:2px solid rgba(15,23,42,.14);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.24);padding:8px;display:none}
+  .overflow-menu.open{display:block}
+  .overflow-menu button{width:100%;border:none;background:transparent;border-radius:11px;padding:12px 10px;text-align:left;color:#0f172a;font-weight:900;font-size:15px;cursor:pointer}
+  .overflow-menu button:active,.overflow-menu button:hover{background:#dbeafe}
+  .backup-file-input{display:none}
 
   .board{position:relative;margin:0 14px 24px;width:980px;height:var(--board-height);background:#c9ced4;border:4px solid #f2a14e;border-radius:22px;overflow:hidden;touch-action:none}
   .kennel{position:absolute;background:#f7f7f7;border:2px solid #9ba3ae;cursor:pointer;padding:6px 8px;color:#294158;overflow:hidden}
@@ -106,7 +113,8 @@
 </style>
 </head>
 <body>
-<div class="topbar"><div class="date-arrow-wrap"><button class="date-arrow-btn" onclick="moveDay(-1)" aria-label="Previous day">‹</button><button class="date-arrow-btn" onclick="moveDay(1)" aria-label="Next day">›</button></div><div class="date-center"><div class="date-title" id="dateTitle" onclick="openCalendar()"></div><div id="todayBadgeContainer"></div></div><div class="right-tools"><button class="cal-icon-btn" onclick="openCalendar()" aria-label="Open calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="3" x2="8" y2="7"></line><line x1="16" y1="3" x2="16" y2="7"></line></svg></button><div class="refresh" onclick="goToday()" title="Return to current day"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"></path><path d="M5.5 9.5V21h13V10-2.5"></path></svg></div><button class="modebtn r" id="resizeBtn" onclick="toggleResizeMode()">R</button></div></div>
+<div class="topbar"><div class="date-arrow-wrap"><button class="date-arrow-btn" onclick="moveDay(-1)" aria-label="Previous day">‹</button><button class="date-arrow-btn" onclick="moveDay(1)" aria-label="Next day">›</button></div><div class="date-center"><div class="date-title" id="dateTitle" onclick="openCalendar()"></div><div id="todayBadgeContainer"></div></div><div class="right-tools"><button class="cal-icon-btn" onclick="openCalendar()" aria-label="Open calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="3" x2="8" y2="7"></line><line x1="16" y1="3" x2="16" y2="7"></line></svg></button><div class="refresh" onclick="goToday()" title="Return to current day"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"></path><path d="M5.5 9.5V21h13V10-2.5"></path></svg></div><button class="modebtn r" id="resizeBtn" onclick="toggleResizeMode()">R</button><button class="overflow-btn" onclick="toggleOverflowMenu(event)" aria-label="Open options menu">⋮</button></div></div>
+<div class="overflow-menu" id="overflowMenu"><button type="button" onclick="exportBackup()">Export Backup</button><button type="button" onclick="triggerImportBackup()">Restore Backup</button></div><input class="backup-file-input" id="backupFileInput" type="file" accept="application/json" onchange="importBackup(event)">
 <div class="board" id="board"></div>
 <div class="cal-overlay" id="calOverlay" onclick="calendarOverlayClose(event)"><div class="cal-card"><div class="cal-head"><button class="cal-nav" onclick="moveCalMonth(-1)">‹</button><div class="cal-month" id="calMonthLabel"></div><button class="cal-nav" onclick="moveCalMonth(1)">›</button></div><div class="cal-weekdays"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div><div class="cal-grid" id="calGrid"></div><div class="cal-actions"><button class="cal-action" onclick="closeCalendar()">Cancel</button><button class="cal-action primary" onclick="setCalendarDate()">SET DATE</button></div></div></div>
 
@@ -168,6 +176,65 @@ function dayData(){return allData[activeDate]||{}}
 function saveAll(){saveStored(STORE_KEYS.data,STORE_KEYS.dataBackup,allData)}
 function setDayData(d){if(Object.keys(d).length) allData[activeDate]=d;else delete allData[activeDate]}
 function saveLayouts(){saveStored(STORE_KEYS.layouts,STORE_KEYS.layoutsBackup,kennelLayouts)}
+function toggleOverflowMenu(event){
+  event.stopPropagation();
+  document.getElementById('overflowMenu').classList.toggle('open');
+}
+function closeOverflowMenu(){
+  document.getElementById('overflowMenu').classList.remove('open');
+}
+document.addEventListener('click',event=>{
+  const menu=document.getElementById('overflowMenu');
+  if(!menu)return;
+  if(!menu.contains(event.target)&&!event.target.classList.contains('overflow-btn'))closeOverflowMenu();
+});
+function exportBackup(){
+  const payload={
+    app:'Kennel Manager',
+    version:'v11',
+    exportedAt:new Date().toISOString(),
+    activeDate,
+    data:allData,
+    layouts:kennelLayouts
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='kennel-backup-'+todayKey()+'.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  closeOverflowMenu();
+}
+function triggerImportBackup(){
+  closeOverflowMenu();
+  document.getElementById('backupFileInput').click();
+}
+function importBackup(event){
+  const file=event.target.files&&event.target.files[0];
+  event.target.value='';
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const payload=JSON.parse(reader.result);
+      if(!payload||typeof payload!=='object'||!payload.data||typeof payload.data!=='object')throw new Error('Invalid backup file');
+      const ok=confirm('Restore this backup? This will replace the current saved kennel data on this device.');
+      if(!ok)return;
+      allData=payload.data;
+      if(payload.layouts&&typeof payload.layouts==='object')kennelLayouts=payload.layouts;
+      saveAll();
+      saveLayouts();
+      render();
+      alert('Backup restored.');
+    }catch(err){
+      alert('Could not restore backup. Make sure this is a Kennel Manager backup file.');
+    }
+  };
+  reader.readAsText(file);
+}
 function purgeLegacyKennel14(){
   let changed=false;
   Object.keys(allData).forEach(dateKey=>{

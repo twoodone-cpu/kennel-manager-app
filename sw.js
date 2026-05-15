@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kennel-manager-v10-2-no-fullscreen';
+const CACHE_NAME = 'kennel-manager-v11-overflow-backup-menu';
 const APP_SHELL = [
   './',
   './index.html',
