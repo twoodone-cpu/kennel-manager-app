@@ -1,10 +1,10 @@
-const CACHE_NAME='kennel-manager-v17';
+const CACHE_NAME='kennel-manager-v18';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './kennel-manager-logo-192-v3.png',
-  './kennel-manager-logo-512-v3.png'
+  './wag-on-inn-logo-192-v18.png',
+  './wag-on-inn-logo-512-v18.png'
 ];
 
 self.addEventListener('install', event => {
