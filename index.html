@@ -12,6 +12,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=18">
 <link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=18">
 <style>
+  @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{width:100%;overflow-x:auto}body{background:#d7dade;font-family:Arial,Helvetica,sans-serif;color:#25384a;min-height:100dvh;overflow:auto;--mobile-scale:.83;--canvas-zoom:1;--board-height:1260px;--canvas-pan-x:0px;--canvas-pan-y:0px;touch-action:none;overscroll-behavior:none}
 
@@ -20,8 +21,8 @@
   .date-arrow-btn{width:48px;height:68px;border:none;border-radius:20px;background:rgba(255,255,255,.56);color:#0f172a;font-size:38px;font-weight:900;box-shadow:0 2px 5px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.55);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding-bottom:4px;flex:0 0 auto}
   .date-arrow-btn:active{transform:scale(.98);background:#dbeafe}
   .date-center{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;min-width:0;overflow:hidden}
-  .date-title{font-size:31px;font-weight:900;color:#0f1d33;letter-spacing:.2px;text-align:center;cursor:pointer;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:clip}
-  .date-title .current-day{color:#facc15;-webkit-text-stroke:1px #000;text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000,0 -1px 0 #000,0 2px 3px rgba(0,0,0,.28)}.date-title .non-current-day{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}.today-badge{display:inline-flex;align-items:center;justify-content:center;margin-top:4px;padding:2px 8px;border-radius:999px;background:#facc15;color:#111827;font-size:10px;font-weight:900;letter-spacing:.7px;box-shadow:0 1px 4px rgba(0,0,0,.2);border:1px solid rgba(0,0,0,.18)}
+  .date-title{font-family:'SansitaDate',system-ui,sans-serif;font-size:31px;font-weight:900;color:#0f1d33;letter-spacing:.2px;text-align:center;cursor:pointer;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:clip}
+  .date-title .current-day,.date-title .non-current-day{color:#8C6A46;-webkit-text-stroke:0;text-shadow:none}.date-title .non-current-day{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}.today-badge{display:inline-flex;align-items:center;justify-content:center;margin-top:4px;padding:2px 8px;border-radius:999px;background:#facc15;color:#111827;font-size:10px;font-weight:900;letter-spacing:.7px;box-shadow:0 1px 4px rgba(0,0,0,.2);border:1px solid rgba(0,0,0,.18)}
   .right-tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-shrink:0}
   .cal-icon-btn{width:48px;height:48px;border:none;border-radius:12px;background:linear-gradient(180deg,#4f9cff 0%,#2563eb 100%);color:#fff;box-shadow:0 4px 10px rgba(37,99,235,.35),inset 0 1px 0 rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex:0 0 auto}
   .cal-icon-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:10px;background:rgba(255,255,255,.22);border-radius:12px 12px 5px 5px}

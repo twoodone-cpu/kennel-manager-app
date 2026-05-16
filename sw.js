@@ -1,8 +1,9 @@
-const CACHE_NAME='kennel-manager-v22';
+const CACHE_NAME='kennel-manager-v23';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
+  './Sansita-BlackItalic.ttf',
   './wag-on-inn-logo-192-v18.png',
   './wag-on-inn-logo-512-v18.png'
 ];
