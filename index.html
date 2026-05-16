@@ -24,6 +24,7 @@
   .date-title{font-family:'SansitaDate',system-ui,sans-serif;font-size:31px;font-weight:900;color:#0f1d33;letter-spacing:.2px;text-align:center;cursor:pointer;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:clip}
   .date-title .current-day,.date-title .non-current-day{color:#8C6A46;-webkit-text-stroke:0;text-shadow:none}.date-title .non-current-day{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}.today-badge{display:inline-flex;align-items:center;justify-content:center;margin-top:4px;padding:2px 8px;border-radius:999px;background:#facc15;color:#111827;font-size:10px;font-weight:900;letter-spacing:.7px;box-shadow:0 1px 4px rgba(0,0,0,.2);border:1px solid rgba(0,0,0,.18)}
   .right-tools{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-shrink:0}
+  .right-tools.zoom-hidden{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s ease,visibility .12s ease}
   .cal-icon-btn{width:48px;height:48px;border:none;border-radius:12px;background:linear-gradient(180deg,#4f9cff 0%,#2563eb 100%);color:#fff;box-shadow:0 4px 10px rgba(37,99,235,.35),inset 0 1px 0 rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex:0 0 auto}
   .cal-icon-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:10px;background:rgba(255,255,255,.22);border-radius:12px 12px 5px 5px}
   .cal-icon-btn svg{width:25px;height:25px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:2}
@@ -195,7 +196,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v11',
+    version:'v24',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -245,6 +246,12 @@ function boardScale(){
   return baseScale*getCanvasZoom();
 }
 function getCanvasZoom(){return Math.max(1,Number(document.body.dataset.canvasZoom||1))}
+function updateZoomHeaderVisibility(){
+  const tools=document.querySelector('.right-tools');
+  if(!tools)return;
+  const shouldHide=window.innerWidth<=900 && getCanvasZoom()>1.15;
+  tools.classList.toggle('zoom-hidden',shouldHide);
+}
 function getViewportSize(){
   return {
     w: window.visualViewport ? window.visualViewport.width : window.innerWidth,
@@ -307,6 +314,7 @@ function setCanvasZoom(value,focalX=null,focalY=null){
   if(!board){
     document.body.dataset.canvasZoom=newZoom.toFixed(3);
     document.body.style.setProperty('--canvas-zoom',newZoom);
+    updateZoomHeaderVisibility();
     return;
   }
 
@@ -343,6 +351,7 @@ function setCanvasZoom(value,focalX=null,focalY=null){
 
   if(newZoom<=1.01)setCanvasPan(0,0);
   else setCanvasPan(nextX,nextY);
+  updateZoomHeaderVisibility();
 }
 function updateMobileScale(resetZoom=false){
   if(resetZoom) setCanvasZoom(1);
@@ -369,9 +378,9 @@ function updateMobileScale(resetZoom=false){
   document.body.style.setProperty('--mobile-scale',baseScale);
   document.body.style.setProperty('--board-height',boardHeight+'px');
 }
-window.addEventListener('resize',()=>{updateMobileScale();const p=getCanvasPan();setCanvasPan(p.x,p.y)});
-window.addEventListener('orientationchange',()=>setTimeout(()=>{updateMobileScale();setCanvasPan(0,0)},250));
-if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{updateMobileScale();const p=getCanvasPan();setCanvasPan(p.x,p.y)})}
+window.addEventListener('resize',()=>{updateMobileScale();const p=getCanvasPan();setCanvasPan(p.x,p.y);updateZoomHeaderVisibility()});
+window.addEventListener('orientationchange',()=>setTimeout(()=>{updateMobileScale();setCanvasPan(0,0);updateZoomHeaderVisibility()},250));
+if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{updateMobileScale();const p=getCanvasPan();setCanvasPan(p.x,p.y);updateZoomHeaderVisibility()})}
 function pinchDistance(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 function setupCanvasPinchZoom(){
   const board=document.getElementById('board');
@@ -549,6 +558,7 @@ function goToday(){activeDate=todayKey();render()}
 requestPersistentStorage();
 setCanvasZoom(1);
 updateMobileScale();
+updateZoomHeaderVisibility();
 render();
 setupCanvasPinchZoom();
 </script>
