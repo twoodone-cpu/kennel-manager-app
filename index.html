@@ -193,10 +193,19 @@ function copyDayToTomorrow(){
   closeOverflowMenu();
   const source=dayData();
   const cleaned={};
+  let skippedPickups=0;
+
   Object.keys(source).forEach(n=>{
     const dog=source[n];
     const names=(dog?.names||[]).map(name=>capitalizeName(String(name||'').trim())).filter(Boolean);
     if(!names.length)return;
+
+    // Dogs marked PU are leaving today, so do not carry that kennel forward.
+    if(dog?.pickupTime){
+      skippedPickups++;
+      return;
+    }
+
     cleaned[n]={
       names,
       sizes:Array.isArray(dog.sizes)?dog.sizes.slice(0,4):[]
@@ -204,7 +213,9 @@ function copyDayToTomorrow(){
   });
 
   if(!Object.keys(cleaned).length){
-    alert('No kennel entries to copy from this day.');
+    alert(skippedPickups
+      ? 'No kennels were copied. All occupied kennels on this day are marked PU.'
+      : 'No kennel entries to copy from this day.');
     return;
   }
 
@@ -212,9 +223,10 @@ function copyDayToTomorrow(){
   targetDate.setDate(targetDate.getDate()+1);
   const targetKey=key(targetDate);
   const targetHasData=allData[targetKey]&&Object.keys(allData[targetKey]).length;
-  const message=targetHasData
-    ? 'Tomorrow already has kennel data. Replace it with this day?\n\nDog names and font sizes will copy. PU/DO times and check-in times will be cleared.'
-    : 'Copy this day to tomorrow?\n\nDog names and font sizes will copy. PU/DO times and check-in times will be cleared.';
+  const pickupNote=skippedPickups?`\n\n${skippedPickups} PU kennel${skippedPickups===1?' was':'s were'} skipped.`:'';
+  const message=(targetHasData
+    ? 'Tomorrow already has kennel data. Replace it with this day?\n\nDog names and font sizes will copy. PU kennels will be skipped. PU/DO times and check-in times will be cleared.'
+    : 'Copy this day to tomorrow?\n\nDog names and font sizes will copy. PU kennels will be skipped. PU/DO times and check-in times will be cleared.')+pickupNote;
 
   if(!confirm(message))return;
 
@@ -222,7 +234,7 @@ function copyDayToTomorrow(){
   saveAll();
   activeDate=targetKey;
   render();
-  alert('Copied to tomorrow. PU/DO times were cleared for safety.');
+  alert('Copied to tomorrow. PU kennels were skipped and PU/DO times were cleared for safety.');
 }
 document.addEventListener('click',event=>{
   const menu=document.getElementById('overflowMenu');
@@ -232,7 +244,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v24',
+    version:'v27',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
