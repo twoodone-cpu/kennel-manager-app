@@ -120,7 +120,7 @@
 </head>
 <body>
 <div class="topbar"><div class="date-arrow-wrap"><button class="date-arrow-btn" onclick="moveDay(-1)" aria-label="Previous day">‹</button><button class="date-arrow-btn" onclick="moveDay(1)" aria-label="Next day">›</button></div><div class="date-center"><div class="date-title" id="dateTitle" onclick="openCalendar()"></div><div id="todayBadgeContainer"></div></div><div class="right-tools"><button class="cal-icon-btn" onclick="openCalendar()" aria-label="Open calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="3" x2="8" y2="7"></line><line x1="16" y1="3" x2="16" y2="7"></line></svg></button><div class="refresh" onclick="goToday()" title="Return to current day"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"></path><path d="M5.5 9.5V21h13V10-2.5"></path></svg></div><button class="overflow-btn" onclick="toggleOverflowMenu(event)" aria-label="Open options menu">⋮</button></div></div>
-<div class="overflow-menu" id="overflowMenu"><button type="button" onclick="toggleResizeMode()" id="resizeMenuBtn">Resize Layout</button><button type="button" onclick="exportBackup()">Export Backup</button><button type="button" onclick="triggerImportBackup()">Restore Backup</button></div><input class="backup-file-input" id="backupFileInput" type="file" accept="application/json" onchange="importBackup(event)">
+<div class="overflow-menu" id="overflowMenu"><button type="button" onclick="toggleResizeMode()" id="resizeMenuBtn">Resize Layout</button><button type="button" onclick="copyDayToTomorrow()">Copy Day to Tomorrow</button><button type="button" onclick="exportBackup()">Export Backup</button><button type="button" onclick="triggerImportBackup()">Restore Backup</button></div><input class="backup-file-input" id="backupFileInput" type="file" accept="application/json" onchange="importBackup(event)">
 <div class="board" id="board"></div>
 <div class="cal-overlay" id="calOverlay" onclick="calendarOverlayClose(event)"><div class="cal-card"><div class="cal-head"><button class="cal-nav" onclick="moveCalMonth(-1)">‹</button><div class="cal-month" id="calMonthLabel"></div><button class="cal-nav" onclick="moveCalMonth(1)">›</button></div><div class="cal-weekdays"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div><div class="cal-grid" id="calGrid"></div><div class="cal-actions"><button class="cal-action" onclick="closeCalendar()">Cancel</button><button class="cal-action primary" onclick="setCalendarDate()">SET DATE</button></div></div></div>
 
@@ -188,6 +188,41 @@ function toggleOverflowMenu(event){
 }
 function closeOverflowMenu(){
   document.getElementById('overflowMenu').classList.remove('open');
+}
+function copyDayToTomorrow(){
+  closeOverflowMenu();
+  const source=dayData();
+  const cleaned={};
+  Object.keys(source).forEach(n=>{
+    const dog=source[n];
+    const names=(dog?.names||[]).map(name=>capitalizeName(String(name||'').trim())).filter(Boolean);
+    if(!names.length)return;
+    cleaned[n]={
+      names,
+      sizes:Array.isArray(dog.sizes)?dog.sizes.slice(0,4):[]
+    };
+  });
+
+  if(!Object.keys(cleaned).length){
+    alert('No kennel entries to copy from this day.');
+    return;
+  }
+
+  const targetDate=dateFromKey(activeDate);
+  targetDate.setDate(targetDate.getDate()+1);
+  const targetKey=key(targetDate);
+  const targetHasData=allData[targetKey]&&Object.keys(allData[targetKey]).length;
+  const message=targetHasData
+    ? 'Tomorrow already has kennel data. Replace it with this day?\n\nDog names and font sizes will copy. PU/DO times and check-in times will be cleared.'
+    : 'Copy this day to tomorrow?\n\nDog names and font sizes will copy. PU/DO times and check-in times will be cleared.';
+
+  if(!confirm(message))return;
+
+  allData[targetKey]=cleaned;
+  saveAll();
+  activeDate=targetKey;
+  render();
+  alert('Copied to tomorrow. PU/DO times were cleared for safety.');
 }
 document.addEventListener('click',event=>{
   const menu=document.getElementById('overflowMenu');
