@@ -14,7 +14,7 @@
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{width:100%;overflow-x:auto}body{background:#d7dade;font-family:Arial,Helvetica,sans-serif;color:#25384a;min-height:100dvh;overflow:auto;--mobile-scale:.83;--canvas-zoom:1;--board-height:1260px;--canvas-pan-x:0px;--canvas-pan-y:0px;touch-action:none;overscroll-behavior:none}
+  html,body{width:100%;overflow-x:auto}body{background:#d7dade;font-family:Arial,Helvetica,sans-serif;color:#25384a;min-height:100dvh;overflow:auto;--mobile-scale:.83;--canvas-zoom:1;--board-height:1260px;--canvas-pan-x:0px;--canvas-pan-y:0px;--day-shift:0px;touch-action:none;overscroll-behavior:none}
 
   .topbar{margin:10px 14px 12px;background:#F4C28B;border-radius:18px;height:88px;display:grid;grid-template-columns:auto minmax(120px,1fr) auto;align-items:center;padding:0 18px;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.18);overflow:hidden}
   .topbar.zoom-hidden{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s ease,visibility .12s ease}
@@ -41,7 +41,8 @@
   .overflow-menu button:active,.overflow-menu button:hover{background:#dbeafe}
   .backup-file-input{display:none}
 
-  .board{position:relative;margin:0 14px 24px;width:980px;height:var(--board-height);background:#c9ced4;border:4px solid #f2a14e;border-radius:22px;overflow:hidden;touch-action:none}
+  .board{position:relative;margin:0 14px 24px;width:980px;height:var(--board-height);background:#c9ced4;border:4px solid #f2a14e;border-radius:22px;overflow:hidden;touch-action:none;transform:translateX(var(--day-shift,0px));will-change:transform}
+  .board.day-transition{transition:transform .20s ease-out,opacity .20s ease-out}
   .kennel{position:absolute;background:#f7f7f7;border:2px solid #9ba3ae;cursor:pointer;padding:6px 8px;color:#294158;overflow:hidden}
   .board.resize-mode .kennel{outline:2px dashed #f59e0b;overflow:visible;z-index:6;cursor:move;touch-action:none}
   .board.resize-mode .kennel.dragging{opacity:.82;box-shadow:0 8px 22px rgba(0,0,0,.32)}
@@ -101,7 +102,7 @@
     .modebtn{min-width:34px;height:32px;padding:0 7px;font-size:14px;border-radius:10px;flex-shrink:0}
     .overflow-btn{width:16px;height:32px;font-size:28px;margin-left:0;padding:0 0 3px 0;flex-shrink:0}
     
-    .board{margin:0 8px 0;transform-origin:0 0;transform:translate(var(--canvas-pan-x),var(--canvas-pan-y)) scale(calc(var(--mobile-scale) * var(--canvas-zoom)));margin-bottom:0;height:var(--board-height);will-change:transform}
+    .board{margin:0 8px 0;transform-origin:0 0;transform:translate(calc(var(--canvas-pan-x) + var(--day-shift,0px)),var(--canvas-pan-y)) scale(calc(var(--mobile-scale) * var(--canvas-zoom)));margin-bottom:0;height:var(--board-height);will-change:transform}
   }
 
   @media(max-width:900px) and (orientation:landscape){
@@ -113,7 +114,7 @@
     .cal-icon-btn,.refresh{width:34px;height:34px}
     .modebtn{min-width:38px;height:34px;font-size:15px}
     .overflow-btn{width:16px;height:34px;font-size:28px;margin-left:0}
-    .board{margin:0 10px 12px;transform-origin:0 0;transform:translate(var(--canvas-pan-x),var(--canvas-pan-y)) scale(calc(var(--mobile-scale) * var(--canvas-zoom)));margin-bottom:0;will-change:transform}
+    .board{margin:0 10px 12px;transform-origin:0 0;transform:translate(calc(var(--canvas-pan-x) + var(--day-shift,0px)),var(--canvas-pan-y)) scale(calc(var(--mobile-scale) * var(--canvas-zoom)));margin-bottom:0;will-change:transform}
   }
 
 </style>
@@ -244,7 +245,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v30',
+    version:'v31',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -659,7 +660,24 @@ function setupDaySwipeNavigation(){
   },true);
 }
 
-function moveDay(dir){const d=dateFromKey(activeDate);d.setDate(d.getDate()+dir);activeDate=key(d);render()}
+function animateDaySlide(dir){
+  const board=document.getElementById('board');
+  if(!board||getCanvasZoom()>1.01)return;
+  const shift=dir>0?'34px':'-34px';
+  board.classList.remove('day-transition');
+  document.body.style.setProperty('--day-shift',shift);
+  board.style.opacity='.92';
+  requestAnimationFrame(()=>{
+    board.classList.add('day-transition');
+    document.body.style.setProperty('--day-shift','0px');
+    board.style.opacity='1';
+    setTimeout(()=>{
+      board.classList.remove('day-transition');
+      board.style.opacity='';
+    },240);
+  });
+}
+function moveDay(dir){const d=dateFromKey(activeDate);d.setDate(d.getDate()+dir);activeDate=key(d);render();animateDaySlide(dir)}
 function goToday(){activeDate=todayKey();render()}
 
 requestPersistentStorage();
