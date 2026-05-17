@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=25">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=25">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=25">
+<link rel="manifest" href="manifest.webmanifest?v=32">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=32">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=32">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -662,20 +662,44 @@ function setupDaySwipeNavigation(){
 
 function animateDaySlide(dir){
   const board=document.getElementById('board');
+  const dateCenter=document.querySelector('.date-center');
   if(!board||getCanvasZoom()>1.01)return;
-  const shift=dir>0?'34px':'-34px';
+
+  const shift=dir>0?'72px':'-72px';
+  const easing='cubic-bezier(.2,.85,.2,1)';
+
   board.classList.remove('day-transition');
+  board.style.transition='none';
+  board.style.opacity='.78';
   document.body.style.setProperty('--day-shift',shift);
-  board.style.opacity='.92';
-  requestAnimationFrame(()=>{
-    board.classList.add('day-transition');
-    document.body.style.setProperty('--day-shift','0px');
-    board.style.opacity='1';
-    setTimeout(()=>{
-      board.classList.remove('day-transition');
-      board.style.opacity='';
-    },240);
-  });
+
+  if(dateCenter){
+    dateCenter.style.transition='none';
+    dateCenter.style.transform='translateX('+shift+')';
+    dateCenter.style.opacity='.76';
+  }
+
+  void board.offsetWidth;
+
+  board.style.transition='transform .28s '+easing+', opacity .28s ease';
+  board.style.opacity='1';
+  document.body.style.setProperty('--day-shift','0px');
+
+  if(dateCenter){
+    dateCenter.style.transition='transform .28s '+easing+', opacity .28s ease';
+    dateCenter.style.transform='translateX(0)';
+    dateCenter.style.opacity='1';
+  }
+
+  setTimeout(()=>{
+    board.style.transition='';
+    board.style.opacity='';
+    if(dateCenter){
+      dateCenter.style.transition='';
+      dateCenter.style.transform='';
+      dateCenter.style.opacity='';
+    }
+  },320);
 }
 function moveDay(dir){const d=dateFromKey(activeDate);d.setDate(d.getDate()+dir);activeDate=key(d);render();animateDaySlide(dir)}
 function goToday(){activeDate=todayKey();render()}
