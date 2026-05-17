@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v29';
+const CACHE_NAME='kennel-manager-v30';
 const APP_SHELL = [
   './',
   './index.html',

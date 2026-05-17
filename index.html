@@ -244,7 +244,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v27',
+    version:'v30',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -601,6 +601,64 @@ function calendarOverlayClose(e){if(e.target.id==='calOverlay')closeCalendar()}
 function moveCalMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++}if(calMonth<0){calMonth=11;calYear--}drawCalendar()}
 function drawCalendar(){const months=['January','February','March','April','May','June','July','August','September','October','November','December'];document.getElementById('calMonthLabel').textContent=months[calMonth]+' '+calYear;const grid=document.getElementById('calGrid');grid.innerHTML='';const firstDay=new Date(calYear,calMonth,1).getDay();const daysInMonth=new Date(calYear,calMonth+1,0).getDate();const today=key(new Date());for(let i=0;i<firstDay;i++){const blank=document.createElement('div');blank.className='cal-day blank';grid.appendChild(blank)}for(let d=1;d<=daysInMonth;d++){const thisKey=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');const el=document.createElement('div');el.className='cal-day';if(thisKey===today)el.classList.add('today');if(thisKey===calSelectedDate)el.classList.add('selected');if(allData[thisKey]&&Object.keys(allData[thisKey]).length)el.classList.add('has-data');el.textContent=d;el.onclick=()=>{calSelectedDate=thisKey;drawCalendar()};grid.appendChild(el)}}
 function setCalendarDate(){activeDate=calSelectedDate;closeCalendar();render()}
+
+let suppressNextKennelClick=false;
+function isModalOrMenuOpen(){
+  return document.getElementById('sheetOverlay')?.classList.contains('open') ||
+         document.getElementById('calOverlay')?.classList.contains('open') ||
+         document.getElementById('overflowMenu')?.classList.contains('open');
+}
+function setupDaySwipeNavigation(){
+  const board=document.getElementById('board');
+  if(!board)return;
+
+  let swipeStart=null;
+  const MIN_SWIPE_DISTANCE=80;
+  const MAX_VERTICAL_DRIFT=75;
+
+  board.addEventListener('pointerdown',e=>{
+    if(resizeMode || getCanvasZoom()>1.01 || isModalOrMenuOpen())return;
+    if(e.pointerType && e.pointerType!=='touch')return;
+    if(e.target.closest('input,textarea,select,button'))return;
+    swipeStart={
+      id:e.pointerId,
+      x:e.clientX,
+      y:e.clientY,
+      time:Date.now()
+    };
+  },{passive:true});
+
+  board.addEventListener('pointerup',e=>{
+    if(!swipeStart || swipeStart.id!==e.pointerId)return;
+    const dx=e.clientX-swipeStart.x;
+    const dy=e.clientY-swipeStart.y;
+    const elapsed=Date.now()-swipeStart.time;
+    swipeStart=null;
+
+    if(resizeMode || getCanvasZoom()>1.01 || isModalOrMenuOpen())return;
+    if(elapsed>900)return;
+    if(Math.abs(dx)<MIN_SWIPE_DISTANCE)return;
+    if(Math.abs(dy)>MAX_VERTICAL_DRIFT)return;
+    if(Math.abs(dx)<Math.abs(dy)*1.45)return;
+
+    suppressNextKennelClick=true;
+    closeOverflowMenu();
+    moveDay(dx<0?1:-1);
+    setTimeout(()=>{suppressNextKennelClick=false},350);
+  },{passive:true});
+
+  ['pointercancel','lostpointercapture'].forEach(type=>{
+    board.addEventListener(type,()=>{swipeStart=null},{passive:true});
+  });
+
+  document.addEventListener('click',e=>{
+    if(!suppressNextKennelClick)return;
+    e.stopPropagation();
+    e.preventDefault();
+    suppressNextKennelClick=false;
+  },true);
+}
+
 function moveDay(dir){const d=dateFromKey(activeDate);d.setDate(d.getDate()+dir);activeDate=key(d);render()}
 function goToday(){activeDate=todayKey();render()}
 
@@ -610,6 +668,7 @@ updateMobileScale();
 updateZoomHeaderVisibility();
 render();
 setupCanvasPinchZoom();
+setupDaySwipeNavigation();
 </script>
 
 <script>
