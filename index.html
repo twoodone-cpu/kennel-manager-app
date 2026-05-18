@@ -41,9 +41,9 @@
   .overflow-menu button:active,.overflow-menu button:hover{background:#dbeafe}
   .backup-file-input{display:none}
 
-  .board{position:relative;margin:0 14px 24px;width:980px;height:var(--board-height);background:#c9ced4;border:4px solid #f2a14e;border-radius:22px;overflow:hidden;touch-action:none;transform:translateX(var(--day-shift,0px));will-change:transform}
+  .board{position:relative;margin:0 14px 24px;width:980px;height:var(--board-height);background:#c9ced4;border:4px solid #f2a14e;border-radius:22px;overflow:hidden;touch-action:none;transform:translateX(var(--day-shift,0px));will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:preserve-3d;contain:layout paint style;isolation:isolate}
   .board.day-transition{transition:transform .20s ease-out,opacity .20s ease-out}
-  .kennel{position:absolute;background:#f7f7f7;border:2px solid #9ba3ae;cursor:pointer;padding:6px 8px;color:#294158;overflow:hidden}
+  .kennel{position:absolute;background:#f7f7f7;border:2px solid #9ba3ae;cursor:pointer;padding:6px 8px;color:#294158;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(0);contain:layout paint style}
   .board.resize-mode .kennel{outline:2px dashed #f59e0b;overflow:visible;z-index:6;cursor:move;touch-action:none}
   .board.resize-mode .kennel.dragging{opacity:.82;box-shadow:0 8px 22px rgba(0,0,0,.32)}
   .resize-handle{display:none;position:absolute;background:#f59e0b;border:2px solid #fff;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.3);z-index:20}
@@ -579,7 +579,36 @@ function statusMarkup(label,value){
   return `<span class="status-chip ${kind}">${label}</span>${showTime}`;
 }
 function kennelInnerHTML(k,dog){const names=(dog?.names||[]).filter(Boolean),sizes=dog?.sizes||[];const status=(dog?statusMarkup('PU',dog.pickupTime)+statusMarkup('DO',dog.dropoffTime):'');const tagClass=k.tag==='TALL'?'tag-tall':k.tag==='BOX'?'tag-box':k.tag==='BIRD'?'tag-bird':'';return `<div class="num">${k.n}</div>`+(dog?`<div class="dog names-${names.length}">${names.map((name,idx)=>`<div class="dog-slot" style="font-size:${sizes[idx]||defaultDogSize(names.length,k.n)}px">${esc(name)}</div>`).join('')}</div>${status?`<div class="kennel-times">${status}</div>`:''}`:'')+(k.tag?`<div class="tag ${tagClass} ${k.tagRight?'right':''}">${k.tag}</div>`:'')}
-function render(){document.getElementById('dateTitle').innerHTML=niceDate(activeDate);document.getElementById('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';const board=document.getElementById('board');board.innerHTML='';const dd=dayData();let total=0;KENNELS.forEach(k=>{const dog=dd[k.n];const names=(dog?.names||[]).filter(Boolean);total+=names.length;const el=document.createElement('div');const pickupState=dog?.pickupTime;el.className='kennel '+(!dog?'empty':pickupState?'pickup':'occupied')+((dog?.pickupTime||dog?.dropoffTime)?' has-times':'')+(dog?.dropoffTime?' do-active':'');el.id='k'+k.n;applyKennelLayout(el,k.n);el.innerHTML=kennelInnerHTML(k,dog);if(resizeMode)addResizeHandles(el,k.n);el.onclick=()=>{if(!resizeMode)editKennel(k.n)};board.appendChild(el)});const t=document.createElement('div');t.className='header-total kennel total-canvas';t.id='ktotal';applyKennelLayout(t,'total');t.innerHTML='<div class="ht-label">TOTAL</div><div class="ht-count">'+total+'</div>';if(resizeMode)addResizeHandles(t,'total');board.appendChild(t)}
+function render(){
+  document.getElementById('dateTitle').innerHTML=niceDate(activeDate);
+  document.getElementById('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';
+  const board=document.getElementById('board');
+  const frag=document.createDocumentFragment();
+  const dd=dayData();
+  let total=0;
+  KENNELS.forEach(k=>{
+    const dog=dd[k.n];
+    const names=(dog?.names||[]).filter(Boolean);
+    total+=names.length;
+    const el=document.createElement('div');
+    const pickupState=dog?.pickupTime;
+    el.className='kennel '+(!dog?'empty':pickupState?'pickup':'occupied')+((dog?.pickupTime||dog?.dropoffTime)?' has-times':'')+(dog?.dropoffTime?' do-active':'');
+    el.id='k'+k.n;
+    applyKennelLayout(el,k.n);
+    el.innerHTML=kennelInnerHTML(k,dog);
+    if(resizeMode)addResizeHandles(el,k.n);
+    el.onclick=()=>{if(!resizeMode)editKennel(k.n)};
+    frag.appendChild(el);
+  });
+  const t=document.createElement('div');
+  t.className='header-total kennel total-canvas';
+  t.id='ktotal';
+  applyKennelLayout(t,'total');
+  t.innerHTML='<div class="ht-label">TOTAL</div><div class="ht-count">'+total+'</div>';
+  if(resizeMode)addResizeHandles(t,'total');
+  frag.appendChild(t);
+  board.replaceChildren(frag);
+}
 function toggleResizeMode(){resizeMode=!resizeMode;const mb=document.getElementById('resizeMenuBtn');if(mb)mb.textContent=resizeMode?'Exit Resize Layout':'Resize Layout';document.getElementById('board').classList.toggle('resize-mode',resizeMode);closeOverflowMenu();render()}
 function addResizeHandles(el,n){['n','s','e','w'].forEach(side=>{const h=document.createElement('div');h.className='resize-handle '+side;h.onpointerdown=e=>startResize(e,n,side);el.appendChild(h)});el.onpointerdown=e=>startDrag(e,n)}
 function startDrag(e,n){if(e.target.classList.contains('resize-handle'))return;e.stopPropagation();e.preventDefault();const r=kennelLayouts[n];dragging={n,startX:e.clientX,startY:e.clientY,start:{...r}};document.getElementById('k'+n)?.classList.add('dragging');document.addEventListener('pointermove',doDrag,{passive:false});document.addEventListener('pointerup',stopDrag)}
