@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v42';
+const CACHE_NAME='kennel-manager-v43';
 const APP_SHELL = [
   './',
   './index.html',
@@ -30,13 +30,16 @@ self.addEventListener('fetch', event => {
   if (requestUrl.origin !== self.location.origin) return;
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
-          return response;
-        })
-        .catch(() => caches.match('./index.html'))
+      caches.match('./index.html').then(cached => {
+        const networkUpdate = fetch(event.request)
+          .then(response => {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+            return response;
+          })
+          .catch(() => cached);
+        return cached || networkUpdate;
+      })
     );
     return;
   }
