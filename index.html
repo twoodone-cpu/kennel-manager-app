@@ -589,13 +589,24 @@ function editKennel(n){activeKennel=n;const dd=dayData();const dog=dd[n]||{};doc
 function closeSheet(){document.getElementById('sheetOverlay').classList.remove('open');document.activeElement?.blur()}
 function overlayClose(e){if(e.target.id==='sheetOverlay')closeSheet()}
 
+let lastHapticAt=0;
 function haptic(type='light'){
   try{
     if(!('vibrate' in navigator))return;
-    if(type==='success')navigator.vibrate(30);
-    else if(type==='clear')navigator.vibrate([30,20,30]);
-    else navigator.vibrate(16);
+    const now=Date.now();
+    if(now-lastHapticAt<220)return;
+    lastHapticAt=now;
+    if(type==='success')navigator.vibrate([22,14,22]);
+    else if(type==='clear')navigator.vibrate([30,18,30]);
+    else navigator.vibrate(22);
   }catch(e){}
+}
+function setupHapticFeedback(){
+  document.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.save-btn'))haptic('success');
+    else if(e.target.closest('.clear-btn,.clear-name-btn'))haptic('clear');
+    else if(e.target.closest('#pickupTime,#dropoffTime'))haptic('light');
+  },{passive:true});
 }
 function saveKennel(){const names=getSheetNames();const sizes=getSheetSizes();const pickupTime=document.getElementById('pickupTime').value;const dropoffTime=document.getElementById('dropoffTime').value;const dd={...dayData()};if(!names.length)delete dd[activeKennel];else dd[activeKennel]={names,sizes,pickupTime,dropoffTime,time:dd[activeKennel]?.time||new Date().toISOString()};setDayData(dd);saveAll();haptic('success');closeSheet();render()}
 function clearKennel(){const dd={...dayData()};delete dd[activeKennel];setDayData(dd);saveAll();haptic('clear');closeSheet();render()}
@@ -714,6 +725,7 @@ updateMobileScale();
 updateZoomHeaderVisibility();
 render();
 setupCanvasPinchZoom();
+setupHapticFeedback();
 setupDaySwipeNavigation();
 </script>
 
