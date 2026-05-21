@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=46">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=46">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=46">
+<link rel="manifest" href="manifest.webmanifest?v=43">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=40">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=40">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -65,7 +65,7 @@
   .dog-slot{padding:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;width:100%}
   .kennel-times{position:absolute;left:10px;right:10px;bottom:8px;font-size:15px;font-weight:900;display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-start;z-index:3;max-width:calc(100% - 20px)}
   .status-chip{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:24px;padding:2px 8px;border-radius:7px;font-size:15px;font-weight:900;line-height:1;color:#111827;border:2px solid rgba(0,0,0,.18);box-shadow:0 2px 4px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35)}
-  .status-chip.pu{background:#22c55e;color:#fff;border-color:#15803d}.status-chip.do{background:#fde047;color:#111827;border-color:#ca8a04}.status-time{display:inline-flex;align-items:center;height:24px;padding:0 3px;font-size:15px;font-weight:900;line-height:1}.status-time.pu{color:#15803d}.status-time.do{color:#111827}
+  .status-chip.pu{background:#fde047;color:#111827;border-color:#ca8a04}.status-chip.do{background:#22c55e;color:#fff;border-color:#15803d}.status-time{display:inline-flex;align-items:center;height:24px;padding:0 3px;font-size:15px;font-weight:900;line-height:1}.status-time.pu{color:#15803d}.status-time.do{color:#111827}
   .tag{position:absolute;left:8px;bottom:5px;font-size:17px;font-weight:900;font-style:normal;color:#111827;text-transform:uppercase;letter-spacing:.3px}
   .tag-bird,.tag-tall{left:auto;right:8px;bottom:8px;display:flex;align-items:center;justify-content:center;min-width:82px;height:34px;padding:0 14px;border:2px solid #3b82f6;border-radius:999px;background:#dbeafe;color:#111827;font-size:18px;font-weight:900;letter-spacing:.5px;font-style:normal;box-shadow:0 2px 5px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.45);z-index:5}
   .tag-box{left:auto;right:8px;bottom:8px;display:flex;align-items:center;justify-content:center;min-width:56px;height:26px;padding:0 12px;border:2px solid #111827;border-radius:999px;background:#fff;color:#000;font-size:15px;font-weight:900;letter-spacing:.5px;box-shadow:0 2px 4px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.45);z-index:5}
@@ -586,25 +586,7 @@ function stopResize(){saveLayouts();document.removeEventListener('pointermove',d
 function clearDogName(i){haptic('clear');document.getElementById('dogName'+i).value='';previewCurrentKennel();document.getElementById('dogName'+i).focus()}
 function previewCurrentKennel(){if(!activeKennel)return;const el=document.getElementById('k'+activeKennel);const k=KENNELS.find(x=>x.n===activeKennel);if(!el||!k)return;const names=getSheetNames();const dog=names.length?{names,sizes:getSheetSizes(),pickupTime:document.getElementById('pickupTime').value,dropoffTime:document.getElementById('dropoffTime').value}:null;const pickupState=dog?.pickupTime;el.className='kennel '+(!dog?'empty':pickupState?'pickup':'occupied')+((dog?.pickupTime||dog?.dropoffTime)?' has-times':'')+(dog?.dropoffTime?' do-active':'');applyKennelLayout(el,activeKennel);el.innerHTML=kennelInnerHTML(k,dog)}
 function editKennel(n){activeKennel=n;const dd=dayData();const dog=dd[n]||{};document.getElementById('sheetTitle').textContent='Kennel '+n;document.getElementById('sheetDate').innerHTML=niceDate(activeDate);document.getElementById('dogName1').value=dog.names?.[0]||'';document.getElementById('dogName2').value=dog.names?.[1]||'';document.getElementById('dogName3').value=dog.names?.[2]||'';document.getElementById('dogName4').value=dog.names?.[3]||'';const currentNames=(dog.names||[]).filter(Boolean);for(let i=1;i<=4;i++){const defaultSize=defaultDogSize(currentNames.length||1,n);document.getElementById('dogSize'+i).value=dog.sizes?.[i-1]||defaultSize;updateSizeLabel(i)}document.getElementById('pickupTime').value=dog.pickupTime||'';document.getElementById('dropoffTime').value=dog.dropoffTime||'';document.getElementById('clearBtn').style.display=(dog.names||[]).length?'block':'none';document.getElementById('timeLine').textContent=dog.time?'Checked in: '+new Date(dog.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';document.getElementById('sheetOverlay').classList.add('open');document.activeElement?.blur()}
-function refreshCanvasAfterSheetClose(){
-  updateMobileScale();
-  const p=getCanvasPan();
-  setCanvasPan(p.x,p.y);
-  updateZoomHeaderVisibility();
-  window.scrollTo(0,0);
-}
-function closeSheet(){
-  document.getElementById('sheetOverlay').classList.remove('open');
-  document.activeElement?.blur();
-
-  /*
-    Android Chrome sometimes restores the screen size in stages after the
-    kennel sheet/input keyboard closes. Recalculate twice so the main canvas
-    returns to its normal fitted position instead of staying stretched/tall.
-  */
-  setTimeout(refreshCanvasAfterSheetClose,250);
-  setTimeout(refreshCanvasAfterSheetClose,650);
-}
+function closeSheet(){document.getElementById('sheetOverlay').classList.remove('open');document.activeElement?.blur()}
 function overlayClose(e){if(e.target.id==='sheetOverlay')closeSheet()}
 
 let lastHapticAt=0;
