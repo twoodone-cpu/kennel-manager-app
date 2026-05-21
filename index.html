@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=43">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=40">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=40">
+<link rel="manifest" href="manifest.webmanifest?v=46">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=46">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=46">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -586,7 +586,25 @@ function stopResize(){saveLayouts();document.removeEventListener('pointermove',d
 function clearDogName(i){haptic('clear');document.getElementById('dogName'+i).value='';previewCurrentKennel();document.getElementById('dogName'+i).focus()}
 function previewCurrentKennel(){if(!activeKennel)return;const el=document.getElementById('k'+activeKennel);const k=KENNELS.find(x=>x.n===activeKennel);if(!el||!k)return;const names=getSheetNames();const dog=names.length?{names,sizes:getSheetSizes(),pickupTime:document.getElementById('pickupTime').value,dropoffTime:document.getElementById('dropoffTime').value}:null;const pickupState=dog?.pickupTime;el.className='kennel '+(!dog?'empty':pickupState?'pickup':'occupied')+((dog?.pickupTime||dog?.dropoffTime)?' has-times':'')+(dog?.dropoffTime?' do-active':'');applyKennelLayout(el,activeKennel);el.innerHTML=kennelInnerHTML(k,dog)}
 function editKennel(n){activeKennel=n;const dd=dayData();const dog=dd[n]||{};document.getElementById('sheetTitle').textContent='Kennel '+n;document.getElementById('sheetDate').innerHTML=niceDate(activeDate);document.getElementById('dogName1').value=dog.names?.[0]||'';document.getElementById('dogName2').value=dog.names?.[1]||'';document.getElementById('dogName3').value=dog.names?.[2]||'';document.getElementById('dogName4').value=dog.names?.[3]||'';const currentNames=(dog.names||[]).filter(Boolean);for(let i=1;i<=4;i++){const defaultSize=defaultDogSize(currentNames.length||1,n);document.getElementById('dogSize'+i).value=dog.sizes?.[i-1]||defaultSize;updateSizeLabel(i)}document.getElementById('pickupTime').value=dog.pickupTime||'';document.getElementById('dropoffTime').value=dog.dropoffTime||'';document.getElementById('clearBtn').style.display=(dog.names||[]).length?'block':'none';document.getElementById('timeLine').textContent=dog.time?'Checked in: '+new Date(dog.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';document.getElementById('sheetOverlay').classList.add('open');document.activeElement?.blur()}
-function closeSheet(){document.getElementById('sheetOverlay').classList.remove('open');document.activeElement?.blur()}
+function refreshCanvasAfterSheetClose(){
+  updateMobileScale();
+  const p=getCanvasPan();
+  setCanvasPan(p.x,p.y);
+  updateZoomHeaderVisibility();
+  window.scrollTo(0,0);
+}
+function closeSheet(){
+  document.getElementById('sheetOverlay').classList.remove('open');
+  document.activeElement?.blur();
+
+  /*
+    Android Chrome sometimes restores the screen size in stages after the
+    kennel sheet/input keyboard closes. Recalculate twice so the main canvas
+    returns to its normal fitted position instead of staying stretched/tall.
+  */
+  setTimeout(refreshCanvasAfterSheetClose,250);
+  setTimeout(refreshCanvasAfterSheetClose,650);
+}
 function overlayClose(e){if(e.target.id==='sheetOverlay')closeSheet()}
 
 let lastHapticAt=0;

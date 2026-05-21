@@ -1,0 +1,15 @@
+Kennel Manager v46 - viewport resize fix
+
+Upload/replace these files in the root of your GitHub Pages repository:
+- index.html
+- sw.js
+- manifest.webmanifest
+- wag-on-inn-logo-192-v18.png
+- wag-on-inn-logo-512-v18.png
+
+Do not delete your existing Sansita-BlackItalic.ttf file from the repo. The app still references it.
+
+Fix included:
+- After closing the kennel sheet, the app recalculates the mobile canvas twice to handle Android Chrome keyboard/viewport restore delays.
+- Service worker cache bumped to kennel-manager-v46.
+- Manifest/icon query strings bumped to v46 so the installed PWA refreshes more reliably.
