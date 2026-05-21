@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=50">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=50">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=50">
+<link rel="manifest" href="manifest.webmanifest?v=51">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=51">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=51">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -238,7 +238,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v50',
+    version:'v51',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -568,7 +568,7 @@ function previewFontSize(i){updateSizeLabel(i);previewCurrentKennel()}
 function statusMarkup(label,value){
   if(!value)return '';
   const kind=label.toLowerCase();
-  const displayLabel=label==='PU'?'PICKUP':label==='DO'?'DROP-OFF':label;
+  const displayLabel=label==='PU'?'PICK-UP':label==='DO'?'DROP-OFF':label;
   const showTime=value!==label?`<span class="status-time ${kind}">${esc(value)}</span>`:'';
   return `<span class="status-chip ${kind}">${displayLabel}</span>${showTime}`;
 }
