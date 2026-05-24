@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=53">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=53">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=53">
+<link rel="manifest" href="manifest.webmanifest?v=54">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=54">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=54">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -119,7 +119,7 @@
 
 </style>
 </head>
-<body class="app-booting"><div class="startup-splash" id="startupSplash" aria-label="Loading Kennel Manager"><div class="startup-card"><img src="wag-on-inn-logo-192-v18.png?v=53" alt="Wag On Inn"><div class="startup-title">Kennel Manager</div></div></div>
+<body class="app-booting"><div class="startup-splash" id="startupSplash" aria-label="Loading Kennel Manager"><div class="startup-card"><img src="wag-on-inn-logo-192-v18.png?v=54" alt="Wag On Inn"><div class="startup-title">Kennel Manager</div></div></div>
 <div class="topbar"><div class="date-arrow-wrap"><button class="date-arrow-btn" onclick="moveDay(-1)" aria-label="Previous day">‹</button><button class="date-arrow-btn" onclick="moveDay(1)" aria-label="Next day">›</button></div><div class="date-center"><div class="date-title" id="dateTitle" onclick="openCalendar()"></div><div id="todayBadgeContainer"></div></div><div class="right-tools"><div class="refresh" onclick="goToday()" title="Return to current day" aria-label="Return to current day"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path></svg></div><button class="cal-icon-btn" onclick="openCalendar()" aria-label="Open calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="3" x2="8" y2="7"></line><line x1="16" y1="3" x2="16" y2="7"></line></svg></button><button class="overflow-btn" onclick="toggleOverflowMenu(event)" aria-label="Open options menu">⋮</button></div></div>
 <div class="overflow-menu" id="overflowMenu"><button type="button" onclick="toggleResizeMode()" id="resizeMenuBtn">Resize Layout</button><button type="button" onclick="copyDayToTomorrow()">Copy Day to Tomorrow</button><button type="button" onclick="exportBackup()">Export Backup</button><button type="button" onclick="triggerImportBackup()">Restore Backup</button></div><input class="backup-file-input" id="backupFileInput" type="file" accept="application/json" onchange="importBackup(event)">
 <div class="board" id="board"></div>
@@ -244,7 +244,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v53',
+    version:'v54',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -759,10 +759,15 @@ function hideStartupSplash(){
   }
 }
 function stabilizeStartupLayout(){
+  /*
+    Startup stability patch:
+    Do not build the kennel DOM until the mobile viewport/font metrics settle.
+    Rendering early and then recalculating scale was the likely cause of intermittent
+    kennel shape flicker during PWA launch.
+  */
   resetCanvasToHome();
   updateMobileScale();
   updateZoomHeaderVisibility();
-  render();
 
   const finishBoot=()=>{
     resetCanvasToHome();
@@ -774,7 +779,10 @@ function stabilizeStartupLayout(){
     setTimeout(()=>{
       document.body.classList.remove('app-booting');
       hideStartupSplash();
-      setTimeout(refreshCanvasAfterViewportChange,200);
+      setTimeout(()=>{
+        refreshCanvasAfterViewportChange();
+        updateZoomHeaderVisibility();
+      },300);
     },remaining);
   };
 
