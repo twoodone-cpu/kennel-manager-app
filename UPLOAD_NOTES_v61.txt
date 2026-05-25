@@ -1,0 +1,12 @@
+Wag On Inn Kennel Manager - v61
+
+Upload/replace these files in the same GitHub Pages folder:
+- index.html
+- manifest.webmanifest
+- sw.js
+- wag-on-inn-logo-192-v18.png
+- wag-on-inn-logo-512-v18.png
+
+Important:
+- Keep your existing Sansita-BlackItalic.ttf file in the repo if you want the exact date-header font. This package does not remove or replace it.
+- After upload, open the site once in Chrome, wait 10-20 seconds, then fully close/reopen the installed app so the v61 service worker takes control.
