@@ -8,16 +8,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=57">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=57">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=57">
+<link rel="manifest" href="manifest.webmanifest?v=59">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v18.png?v=59">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-192-v18.png?v=59">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html{background:#d7dade}html,body{width:100%;overflow-x:auto}body{background:#d7dade;font-family:Arial,Helvetica,sans-serif;color:#25384a;min-height:100dvh;overflow:auto;--mobile-scale:.83;--canvas-zoom:1;--board-height:1260px;--canvas-pan-x:0px;--canvas-pan-y:0px;--day-shift:0px;touch-action:none;overscroll-behavior:none}
   html.app-booting,body.app-booting{background:#5A3E6B!important;overflow:hidden!important}
   body.app-booting .topbar,body.app-booting .board{visibility:hidden;opacity:0}
-  .startup-splash{position:fixed;inset:0;z-index:9999;background:#5A3E6B;display:block;border-radius:0!important;overflow:hidden;contain:strict;isolation:isolate;transform:none!important;transition:opacity .18s ease,visibility .18s ease}
+  .startup-splash{position:fixed;inset:0;z-index:9999;background:#5A3E6B;display:flex;align-items:center;justify-content:center;border-radius:0!important;overflow:hidden;contain:strict;isolation:isolate;transform:none!important;transition:opacity .18s ease,visibility .18s ease}
+  .startup-splash img{width:144px;height:144px;border-radius:30px;display:block;object-fit:contain;opacity:1;transform:none!important;transition:none!important;backface-visibility:hidden;will-change:auto}
   .startup-splash.hidden{opacity:0;visibility:hidden;pointer-events:none}
 
   .topbar{margin:10px 14px 12px;background:#F4C28B;border-radius:18px;height:88px;display:grid;grid-template-columns:auto minmax(120px,1fr) auto;align-items:center;padding:0 18px;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.18);overflow:hidden}
@@ -117,7 +118,7 @@
 
 </style>
 </head>
-<body class="app-booting"><script>document.documentElement.classList.add('app-booting');</script><div class="startup-splash" id="startupSplash" aria-label="Loading Kennel Manager"></div>
+<body class="app-booting"><script>document.documentElement.classList.add('app-booting');</script><div class="startup-splash" id="startupSplash" aria-label="Loading Kennel Manager"><img src="wag-on-inn-logo-192-v18.png?v=59" alt="Wag On Inn"></div>
 <div class="topbar"><div class="date-arrow-wrap"><button class="date-arrow-btn" onclick="moveDay(-1)" aria-label="Previous day">‹</button><button class="date-arrow-btn" onclick="moveDay(1)" aria-label="Next day">›</button></div><div class="date-center"><div class="date-title" id="dateTitle" onclick="openCalendar()"></div><div id="todayBadgeContainer"></div></div><div class="right-tools"><div class="refresh" onclick="goToday()" title="Return to current day" aria-label="Return to current day"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path></svg></div><button class="cal-icon-btn" onclick="openCalendar()" aria-label="Open calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="8" y1="3" x2="8" y2="7"></line><line x1="16" y1="3" x2="16" y2="7"></line></svg></button><button class="overflow-btn" onclick="toggleOverflowMenu(event)" aria-label="Open options menu">⋮</button></div></div>
 <div class="overflow-menu" id="overflowMenu"><button type="button" onclick="toggleResizeMode()" id="resizeMenuBtn">Resize Layout</button><button type="button" onclick="copyDayToTomorrow()">Copy Day to Tomorrow</button><button type="button" onclick="exportBackup()">Export Backup</button><button type="button" onclick="triggerImportBackup()">Restore Backup</button></div><input class="backup-file-input" id="backupFileInput" type="file" accept="application/json" onchange="importBackup(event)">
 <div class="board" id="board"></div>
@@ -242,7 +243,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v57',
+    version:'v59',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
