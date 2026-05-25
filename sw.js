@@ -1,30 +1,40 @@
-const CACHE_NAME = 'kennel-manager-v61';
+const CACHE_NAME='kennel-manager-v62';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './wag-on-inn-logo-192-v18.png',
-  './wag-on-inn-logo-512-v18.png'
+  './Sansita-BlackItalic.ttf',
+  './wag-on-inn-logo-192-v19.png',
+  './wag-on-inn-logo-512-v19.png'
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => Promise.allSettled(APP_SHELL.map(url => cache.add(url))))
-  );
-  self.skipWaiting();
-});
+async function cacheAppShell() {
+  const cache = await caches.open(CACHE_NAME);
+  await Promise.all(APP_SHELL.map(async url => {
+    try {
+      const request = new Request(url, { cache: 'reload' });
+      const response = await fetch(request);
+      if (response && response.ok) {
+        await cache.put(url, response);
+      }
+    } catch (err) {
+      console.warn('App shell cache skipped:', url, err);
+    }
+  }));
+}
 
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+self.addEventListener('install', event => {
+  event.waitUntil(cacheAppShell());
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
-      .then(() => self.clients.claim())
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    ))
   );
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
@@ -35,7 +45,7 @@ self.addEventListener('fetch', event => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request, {cache: 'no-store'})
+      fetch(event.request)
         .then(response => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
@@ -47,17 +57,14 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      const network = fetch(event.request)
-        .then(response => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-          }
-          return response;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(event.request)
+      .then(response => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
