@@ -8,9 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=64">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-512-v19.png?v=64">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v19.png?v=64">
+<link rel="manifest" href="manifest.webmanifest?v=65">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v19.png?v=65">
+<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v19.png?v=65">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v19.png?v=65">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -18,7 +19,7 @@
   html.app-booting,body.app-booting{background:#5A3E6B!important;overflow:hidden!important}
   body.app-booting .topbar,body.app-booting .board{visibility:hidden;opacity:0}
   .startup-splash{position:fixed;inset:0;z-index:9999;background:#5A3E6B;display:flex;align-items:center;justify-content:center;border-radius:0!important;overflow:hidden;contain:strict;isolation:isolate;transform:none!important;transition:opacity .18s ease,visibility .18s ease}
-  /* v64: keep the in-app handoff splash logo-free. Android already shows the PWA icon first, and rendering the same logo again in HTML causes a visible scale/outline jump on some devices. */
+  /* v65: keep the in-app handoff splash logo-free. Android already shows the PWA icon first, and rendering the same logo again in HTML causes a visible scale/outline jump on some devices. */
   .startup-splash.hidden{opacity:0;visibility:hidden;pointer-events:none}
 
   .topbar{margin:10px 14px 12px;background:#F4C28B;border-radius:18px;height:88px;display:grid;grid-template-columns:auto minmax(120px,1fr) auto;align-items:center;padding:0 18px;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.18);overflow:hidden}
@@ -243,7 +244,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v64',
+    version:'v65',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -780,7 +781,7 @@ function hideStartupSplash(){
 }
 
 function startupImageReady(){
-  // v64: no HTML splash logo to decode. Android/PWA handles the icon; the app holds a plain plum handoff screen until layout is stable.
+  // v65: no HTML splash logo to decode. Android/PWA handles the icon; the app holds a plain plum handoff screen until layout is stable.
   return Promise.resolve();
 }
 
@@ -836,7 +837,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=64').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=65').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);
