@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=65">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v19.png?v=65">
-<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v19.png?v=65">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v19.png?v=65">
+<link rel="manifest" href="manifest.webmanifest?v=66">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v19.png?v=66">
+<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v19.png?v=66">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v19.png?v=66">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -19,7 +19,6 @@
   html.app-booting,body.app-booting{background:#5A3E6B!important;overflow:hidden!important}
   body.app-booting .topbar,body.app-booting .board{visibility:hidden;opacity:0}
   .startup-splash{position:fixed;inset:0;z-index:9999;background:#5A3E6B;display:flex;align-items:center;justify-content:center;border-radius:0!important;overflow:hidden;contain:strict;isolation:isolate;transform:none!important;transition:opacity .18s ease,visibility .18s ease}
-  /* v65: keep the in-app handoff splash logo-free. Android already shows the PWA icon first, and rendering the same logo again in HTML causes a visible scale/outline jump on some devices. */
   .startup-splash.hidden{opacity:0;visibility:hidden;pointer-events:none}
 
   .topbar{margin:10px 14px 12px;background:#F4C28B;border-radius:18px;height:88px;display:grid;grid-template-columns:auto minmax(120px,1fr) auto;align-items:center;padding:0 18px;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.18);overflow:hidden}
@@ -92,7 +91,6 @@
     body{overflow:auto;background:#d7dade}
     .topbar{height:74px;margin:8px 8px 10px;padding:0 8px;border-radius:16px;width:calc(100vw - 16px);min-width:0;gap:5px;grid-template-columns:92px minmax(0,1fr) auto;transform:none;margin-bottom:10px}
     .date-arrow-wrap{min-width:92px;gap:8px;align-self:stretch;align-items:center}
-    /* IMPORTANT: preserve approved tall pill arrows exactly */
     .date-arrow-btn{width:42px;height:58px;border-radius:18px;font-size:34px;flex:0 0 auto}
     .date-center{min-width:0;overflow:hidden;position:relative;z-index:1}
     .date-title{font-size:18px;white-space:nowrap;line-height:1;max-width:100%;overflow:hidden;text-overflow:clip;position:relative;z-index:1}
@@ -244,7 +242,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v65',
+    version:'v66',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -319,11 +317,6 @@ function clampCanvasPan(x,y,zoom=getCanvasZoom()){
   const currentPan=getCanvasPan();
   const rect=board.getBoundingClientRect();
 
-  /*
-    Clamp against the board's real natural position on screen.
-    The older clamp ignored the board/header offset, which cut off travel
-    and made the canvas feel trapped before you could reach every area.
-  */
   const naturalLeft=rect.left-currentPan.x;
   const naturalTop=rect.top-currentPan.y;
   const edgePad=28;
@@ -377,11 +370,6 @@ function setCanvasZoom(value,focalX=null,focalY=null){
   const baseScale=parseFloat(getComputedStyle(document.body).getPropertyValue('--mobile-scale'))||1;
   const oldScale=baseScale*oldZoom;
 
-  /*
-    Work from the board's natural screen position, not the already-transformed
-    position. This keeps the pinch center locked under your fingers instead of
-    drifting to a corner.
-  */
   const rect=board.getBoundingClientRect();
   const naturalLeft=rect.left-oldPan.x;
   const naturalTop=rect.top-oldPan.y;
@@ -416,11 +404,6 @@ function updateMobileScale(resetZoom=false){
   const topbar = document.querySelector('.topbar');
   const topbarVisibleHeight = topbar ? topbar.getBoundingClientRect().height + 18 : 0;
 
-  /*
-    Important: board height must NOT shrink when zoom increases. The previous
-    version divided by zoom, which reduced the scrollable/pannable canvas and
-    stopped you from navigating around while zoomed in.
-  */
   const visibleBoardHeight = Math.max(520, viewportHeight - topbarVisibleHeight - 8);
   const boardHeight = Math.max(1260, visibleBoardHeight / baseScale);
 
@@ -623,11 +606,6 @@ function closeSheet(){
   document.getElementById('sheetOverlay').classList.remove('open');
   document.activeElement?.blur();
 
-  /*
-    Android Chrome can restore the visual viewport in stages after closing
-    the keyboard/bottom sheet. Queue these refreshes so repeated viewport
-    events collapse into one stable layout update instead of several jumps.
-  */
   setTimeout(()=>requestLayoutRefresh({scrollTop:true}),250);
   setTimeout(()=>requestLayoutRefresh({scrollTop:true}),650);
 }
@@ -780,18 +758,8 @@ function hideStartupSplash(){
   }
 }
 
-function startupImageReady(){
-  // v65: no HTML splash logo to decode. Android/PWA handles the icon; the app holds a plain plum handoff screen until layout is stable.
-  return Promise.resolve();
-}
 
 function stabilizeStartupLayout(){
-  /*
-    Startup stability patch:
-    Do not build the kennel DOM until the mobile viewport/font metrics settle.
-    Rendering early and then recalculating scale was the likely cause of intermittent
-    kennel shape flicker during PWA launch.
-  */
   resetCanvasToHome();
   updateMobileScale();
   updateZoomHeaderVisibility();
@@ -819,11 +787,10 @@ function stabilizeStartupLayout(){
   if(document.fonts&&document.fonts.ready){
     Promise.all([
       Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,500))]),
-      startupImageReady(),
       settleViewport()
     ]).then(()=>requestAnimationFrame(()=>requestAnimationFrame(finishBoot)));
   }else{
-    Promise.all([startupImageReady(),settleViewport()]).then(()=>requestAnimationFrame(()=>requestAnimationFrame(finishBoot)));
+    settleViewport().then(()=>requestAnimationFrame(()=>requestAnimationFrame(finishBoot)));
   }
 }
 
@@ -837,7 +804,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=65').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=66').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);
