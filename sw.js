@@ -1,12 +1,10 @@
-const CACHE_NAME='kennel-manager-v66';
+const CACHE_NAME='kennel-manager-v67';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './wag-on-inn-logo-192-v19.png',
-  './wag-on-inn-logo-512-v19.png',
-  './wag-on-inn-logo-maskable-192-v65.png',
-  './wag-on-inn-logo-maskable-512-v65.png'
+  './wag-on-inn-logo-192-v67.png',
+  './wag-on-inn-logo-512-v67.png'
 ];
 
 async function cacheAppShell() {

@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=66">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v19.png?v=66">
-<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v19.png?v=66">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v19.png?v=66">
+<link rel="manifest" href="manifest.webmanifest?v=67">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v67.png?v=67">
+<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v67.png?v=67">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v67.png?v=67">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -242,7 +242,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v66',
+    version:'v67',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -804,7 +804,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=66').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=67').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);
