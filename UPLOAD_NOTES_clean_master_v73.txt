@@ -1,0 +1,17 @@
+CLEAN MASTER v73
+
+Source: kennel-manager-ui-focus-fix.zip
+
+Cleanup performed:
+- Removed old duplicate logo/icon files from package.
+- Removed duplicate manifest file.
+- Removed duplicate font file.
+- Kept only the actively used app files.
+- Renamed active icon assets to stable canonical names:
+  - app-icon-192.png
+  - app-icon-512.png
+- Updated index.html, manifest.webmanifest, and sw.js to reference only canonical active files.
+- Bumped service worker cache to kennel-manager-v73-clean-master so older cached assets are cleared.
+
+Upload these files to GitHub root, replacing existing files where prompted.
+Do not manually delete repo files unless you are intentionally doing a cleanup pass.
