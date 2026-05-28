@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=70">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v70.png?v=70">
-<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v70.png?v=70">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v70.png?v=70">
+<link rel="manifest" href="manifest.webmanifest?v=72">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v72.png?v=72">
+<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v72.png?v=72">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v72.png?v=72">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -257,7 +257,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v70',
+    version:'v72',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -584,8 +584,123 @@ function statusMarkup(label,value){
 }
 function kennelClass(dog){const names=currentNames(dog);const hasCurrent=names.length>0;const pickupState=hasCurrent&&dog?.pickupTime;return 'kennel '+(!hasCurrent?'empty':pickupState?'pickup':'occupied')+((hasCurrent&&(dog?.pickupTime||dog?.dropoffTime))?' has-times':'')+((hasCurrent&&dog?.dropoffTime)?' do-active':'')}
 function kennelInnerHTML(k,dog){const names=currentNames(dog),sizes=dog?.sizes||[];const status=(names.length?statusMarkup('PU',dog.pickupTime)+statusMarkup('DO',dog.dropoffTime):'');const incoming=incomingData(dog);const tagClass=k.tag==='TALL'?'tag-tall':k.tag==='BOX'?'tag-box':k.tag==='BIRD'?'tag-bird':'';return `<div class="num">${k.n}</div>`+(incoming?'<div class="incoming-badge" aria-label="Incoming dog saved">★</div>':'')+(names.length?`<div class="dog names-${names.length}">${names.map((name,idx)=>`<div class="dog-slot" style="font-size:${sizes[idx]||defaultDogSize(names.length,k.n)}px">${esc(name)}</div>`).join('')}</div>${status?`<div class="kennel-times">${status}</div>`:''}`:'')+(k.tag?`<div class="tag ${tagClass} ${k.tagRight?'right':''}">${k.tag}</div>`:'')}
-function attachKennelPressHandlers(el,n){let timer=null,startX=0,startY=0,longPressed=false,pointerId=null;const clear=()=>{if(timer){clearTimeout(timer);timer=null}};const finish=e=>{if(pointerId!==null&&e&&e.pointerId!==undefined&&e.pointerId!==pointerId)return;clear();pointerId=null;if(longPressed)setTimeout(()=>{suppressNextKennelClick=false},350)};el.addEventListener('pointerdown',e=>{if(resizeMode||getCanvasZoom()>1.01||isModalOrMenuOpen())return;if(e.target.closest('input,textarea,select,button'))return;startX=e.clientX;startY=e.clientY;pointerId=e.pointerId;longPressed=false;clear();try{el.setPointerCapture(e.pointerId)}catch{}timer=setTimeout(()=>{if(pointerId===null)return;longPressed=true;suppressNextKennelClick=true;clear();haptic('light');openIncomingSheet(n)},700)},{passive:true});el.addEventListener('pointermove',e=>{if(pointerId!==e.pointerId||!timer)return;if(Math.abs(e.clientX-startX)>12||Math.abs(e.clientY-startY)>12)clear()},{passive:true});['pointerup','pointercancel','lostpointercapture','pointerleave'].forEach(type=>el.addEventListener(type,finish,{passive:true}));el.addEventListener('click',e=>{clear();if(longPressed){e.preventDefault();e.stopPropagation();}},true);el.addEventListener('contextmenu',e=>{if(timer||longPressed){e.preventDefault();e.stopPropagation();clear()}},true)}
-function render(){document.getElementById('dateTitle').innerHTML=niceDate(activeDate);document.getElementById('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';const board=document.getElementById('board');board.innerHTML='';const dd=dayData();let total=0;KENNELS.forEach(k=>{const dog=dd[k.n]||{};const names=currentNames(dog);total+=names.length;const el=document.createElement('div');el.className=kennelClass(dog);el.id='k'+k.n;applyKennelLayout(el,k.n);el.innerHTML=kennelInnerHTML(k,dog);if(resizeMode)addResizeHandles(el,k.n);attachKennelPressHandlers(el,k.n);el.onclick=()=>{if(!resizeMode&&!suppressNextKennelClick)editKennel(k.n)};board.appendChild(el)});const t=document.createElement('div');t.className='header-total kennel total-canvas';t.id='ktotal';applyKennelLayout(t,'total');t.innerHTML='<div class="ht-label">TOTAL</div><div class="ht-count">'+total+'</div>';if(resizeMode)addResizeHandles(t,'total');board.appendChild(t)}
+function attachKennelPressHandlers(el,n){
+  let timer=null;
+  let startX=0,startY=0;
+  let pointerId=null;
+  let longPressed=false;
+  let cancelled=false;
+  let tracking=false;
+  const LONG_PRESS_MS=520;
+  const MOVE_CANCEL_PX=16;
+
+  const clearTimer=()=>{
+    if(timer){
+      clearTimeout(timer);
+      timer=null;
+    }
+  };
+
+  const removeDocumentListeners=()=>{
+    document.removeEventListener('pointermove',onDocumentPointerMove,true);
+    document.removeEventListener('pointerup',onDocumentPointerEnd,true);
+    document.removeEventListener('pointercancel',onDocumentPointerCancel,true);
+    document.removeEventListener('pointerdown',onExtraPointerDown,true);
+    tracking=false;
+  };
+
+  const resetPress=()=>{
+    clearTimer();
+    pointerId=null;
+    cancelled=false;
+    removeDocumentListeners();
+    if(longPressed)setTimeout(()=>{suppressNextKennelClick=false},650);
+  };
+
+  const cancelPress=()=>{
+    clearTimer();
+    cancelled=true;
+  };
+
+  const fireLongPress=()=>{
+    if(pointerId===null||cancelled||longPressed)return;
+    longPressed=true;
+    suppressNextKennelClick=true;
+    clearTimer();
+    haptic('light');
+    openIncomingSheet(n);
+  };
+
+  function onExtraPointerDown(e){
+    if(pointerId!==null&&e.pointerId!==pointerId)cancelPress();
+  }
+
+  function onDocumentPointerMove(e){
+    if(pointerId===null||e.pointerId!==pointerId||cancelled||longPressed)return;
+    if(Math.abs(e.clientX-startX)>MOVE_CANCEL_PX||Math.abs(e.clientY-startY)>MOVE_CANCEL_PX)cancelPress();
+  }
+
+  function onDocumentPointerEnd(e){
+    if(pointerId===null||e.pointerId!==pointerId)return;
+    const shouldTap=!longPressed&&!cancelled;
+    resetPress();
+    if(shouldTap&&!resizeMode&&!isModalOrMenuOpen()){
+      suppressNextKennelClick=true;
+      editKennel(n);
+      setTimeout(()=>{suppressNextKennelClick=false},120);
+    }
+  }
+
+  function onDocumentPointerCancel(e){
+    if(pointerId!==null&&e.pointerId!==pointerId)return;
+    resetPress();
+  }
+
+  el.addEventListener('pointerdown',e=>{
+    if(resizeMode||getCanvasZoom()>1.01||isModalOrMenuOpen())return;
+    if(e.target.closest('input,textarea,select,button'))return;
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+
+    startX=e.clientX;
+    startY=e.clientY;
+    pointerId=e.pointerId;
+    longPressed=false;
+    cancelled=false;
+    suppressNextKennelClick=false;
+    clearTimer();
+
+    if(!tracking){
+      document.addEventListener('pointermove',onDocumentPointerMove,true);
+      document.addEventListener('pointerup',onDocumentPointerEnd,true);
+      document.addEventListener('pointercancel',onDocumentPointerCancel,true);
+      document.addEventListener('pointerdown',onExtraPointerDown,true);
+      tracking=true;
+    }
+
+    timer=setTimeout(fireLongPress,LONG_PRESS_MS);
+  },{passive:true});
+
+  el.addEventListener('contextmenu',e=>{
+    if(pointerId!==null&&!longPressed&&!cancelled){
+      e.preventDefault();
+      e.stopPropagation();
+      fireLongPress();
+      return;
+    }
+    if(longPressed||suppressNextKennelClick){
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  },true);
+
+  el.addEventListener('click',e=>{
+    if(suppressNextKennelClick||longPressed){
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  },true);
+}
+function render(){document.getElementById('dateTitle').innerHTML=niceDate(activeDate);document.getElementById('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';const board=document.getElementById('board');board.innerHTML='';const dd=dayData();let total=0;KENNELS.forEach(k=>{const dog=dd[k.n]||{};const names=currentNames(dog);total+=names.length;const el=document.createElement('div');el.className=kennelClass(dog);el.id='k'+k.n;applyKennelLayout(el,k.n);el.innerHTML=kennelInnerHTML(k,dog);if(resizeMode)addResizeHandles(el,k.n);attachKennelPressHandlers(el,k.n);board.appendChild(el)});const t=document.createElement('div');t.className='header-total kennel total-canvas';t.id='ktotal';applyKennelLayout(t,'total');t.innerHTML='<div class="ht-label">TOTAL</div><div class="ht-count">'+total+'</div>';if(resizeMode)addResizeHandles(t,'total');board.appendChild(t)}
 function toggleResizeMode(){resizeMode=!resizeMode;const mb=document.getElementById('resizeMenuBtn');if(mb)mb.textContent=resizeMode?'Exit Resize Layout':'Resize Layout';document.getElementById('board').classList.toggle('resize-mode',resizeMode);closeOverflowMenu();render()}
 function addResizeHandles(el,n){['n','s','e','w'].forEach(side=>{const h=document.createElement('div');h.className='resize-handle '+side;h.onpointerdown=e=>startResize(e,n,side);el.appendChild(h)});el.onpointerdown=e=>startDrag(e,n)}
 function startDrag(e,n){if(e.target.classList.contains('resize-handle'))return;e.stopPropagation();e.preventDefault();const r=kennelLayouts[n];dragging={n,startX:e.clientX,startY:e.clientY,start:{...r}};document.getElementById('k'+n)?.classList.add('dragging');document.addEventListener('pointermove',doDrag,{passive:false});document.addEventListener('pointerup',stopDrag)}
@@ -834,7 +949,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=69').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=72').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);
