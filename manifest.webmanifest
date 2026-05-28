@@ -10,13 +10,13 @@
   "theme_color": "#5A3E6B",
   "icons": [
     {
-      "src": "wag-on-inn-logo-192-v68.png",
+      "src": "wag-on-inn-logo-192-v69.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "wag-on-inn-logo-512-v68.png",
+      "src": "wag-on-inn-logo-512-v69.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
