@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=69">
-<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v69.png?v=69">
-<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v69.png?v=69">
-<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v69.png?v=69">
+<link rel="manifest" href="manifest.webmanifest?v=70">
+<link rel="icon" type="image/png" sizes="192x192" href="wag-on-inn-logo-192-v70.png?v=70">
+<link rel="icon" type="image/png" sizes="512x512" href="wag-on-inn-logo-512-v70.png?v=70">
+<link rel="apple-touch-icon" href="wag-on-inn-logo-512-v70.png?v=70">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -257,7 +257,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v69',
+    version:'v70',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -584,7 +584,7 @@ function statusMarkup(label,value){
 }
 function kennelClass(dog){const names=currentNames(dog);const hasCurrent=names.length>0;const pickupState=hasCurrent&&dog?.pickupTime;return 'kennel '+(!hasCurrent?'empty':pickupState?'pickup':'occupied')+((hasCurrent&&(dog?.pickupTime||dog?.dropoffTime))?' has-times':'')+((hasCurrent&&dog?.dropoffTime)?' do-active':'')}
 function kennelInnerHTML(k,dog){const names=currentNames(dog),sizes=dog?.sizes||[];const status=(names.length?statusMarkup('PU',dog.pickupTime)+statusMarkup('DO',dog.dropoffTime):'');const incoming=incomingData(dog);const tagClass=k.tag==='TALL'?'tag-tall':k.tag==='BOX'?'tag-box':k.tag==='BIRD'?'tag-bird':'';return `<div class="num">${k.n}</div>`+(incoming?'<div class="incoming-badge" aria-label="Incoming dog saved">★</div>':'')+(names.length?`<div class="dog names-${names.length}">${names.map((name,idx)=>`<div class="dog-slot" style="font-size:${sizes[idx]||defaultDogSize(names.length,k.n)}px">${esc(name)}</div>`).join('')}</div>${status?`<div class="kennel-times">${status}</div>`:''}`:'')+(k.tag?`<div class="tag ${tagClass} ${k.tagRight?'right':''}">${k.tag}</div>`:'')}
-function attachKennelPressHandlers(el,n){let timer=null,startX=0,startY=0,longPressed=false;const clear=()=>{if(timer){clearTimeout(timer);timer=null}};el.addEventListener('pointerdown',e=>{if(resizeMode||getCanvasZoom()>1.01||isModalOrMenuOpen())return;if(e.target.closest('input,textarea,select,button'))return;startX=e.clientX;startY=e.clientY;longPressed=false;clear();timer=setTimeout(()=>{longPressed=true;suppressNextKennelClick=true;haptic('light');openIncomingSheet(n);},600)},{passive:true});el.addEventListener('pointermove',e=>{if(!timer)return;if(Math.abs(e.clientX-startX)>10||Math.abs(e.clientY-startY)>10)clear()},{passive:true});['pointerup','pointercancel','lostpointercapture'].forEach(type=>el.addEventListener(type,()=>{clear();if(longPressed)setTimeout(()=>{suppressNextKennelClick=false},350)},{passive:true}));}
+function attachKennelPressHandlers(el,n){let timer=null,startX=0,startY=0,longPressed=false,pointerId=null;const clear=()=>{if(timer){clearTimeout(timer);timer=null}};const finish=e=>{if(pointerId!==null&&e&&e.pointerId!==undefined&&e.pointerId!==pointerId)return;clear();pointerId=null;if(longPressed)setTimeout(()=>{suppressNextKennelClick=false},350)};el.addEventListener('pointerdown',e=>{if(resizeMode||getCanvasZoom()>1.01||isModalOrMenuOpen())return;if(e.target.closest('input,textarea,select,button'))return;startX=e.clientX;startY=e.clientY;pointerId=e.pointerId;longPressed=false;clear();try{el.setPointerCapture(e.pointerId)}catch{}timer=setTimeout(()=>{if(pointerId===null)return;longPressed=true;suppressNextKennelClick=true;clear();haptic('light');openIncomingSheet(n)},700)},{passive:true});el.addEventListener('pointermove',e=>{if(pointerId!==e.pointerId||!timer)return;if(Math.abs(e.clientX-startX)>12||Math.abs(e.clientY-startY)>12)clear()},{passive:true});['pointerup','pointercancel','lostpointercapture','pointerleave'].forEach(type=>el.addEventListener(type,finish,{passive:true}));el.addEventListener('click',e=>{clear();if(longPressed){e.preventDefault();e.stopPropagation();}},true);el.addEventListener('contextmenu',e=>{if(timer||longPressed){e.preventDefault();e.stopPropagation();clear()}},true)}
 function render(){document.getElementById('dateTitle').innerHTML=niceDate(activeDate);document.getElementById('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';const board=document.getElementById('board');board.innerHTML='';const dd=dayData();let total=0;KENNELS.forEach(k=>{const dog=dd[k.n]||{};const names=currentNames(dog);total+=names.length;const el=document.createElement('div');el.className=kennelClass(dog);el.id='k'+k.n;applyKennelLayout(el,k.n);el.innerHTML=kennelInnerHTML(k,dog);if(resizeMode)addResizeHandles(el,k.n);attachKennelPressHandlers(el,k.n);el.onclick=()=>{if(!resizeMode&&!suppressNextKennelClick)editKennel(k.n)};board.appendChild(el)});const t=document.createElement('div');t.className='header-total kennel total-canvas';t.id='ktotal';applyKennelLayout(t,'total');t.innerHTML='<div class="ht-label">TOTAL</div><div class="ht-count">'+total+'</div>';if(resizeMode)addResizeHandles(t,'total');board.appendChild(t)}
 function toggleResizeMode(){resizeMode=!resizeMode;const mb=document.getElementById('resizeMenuBtn');if(mb)mb.textContent=resizeMode?'Exit Resize Layout':'Resize Layout';document.getElementById('board').classList.toggle('resize-mode',resizeMode);closeOverflowMenu();render()}
 function addResizeHandles(el,n){['n','s','e','w'].forEach(side=>{const h=document.createElement('div');h.className='resize-handle '+side;h.onpointerdown=e=>startResize(e,n,side);el.appendChild(h)});el.onpointerdown=e=>startDrag(e,n)}
