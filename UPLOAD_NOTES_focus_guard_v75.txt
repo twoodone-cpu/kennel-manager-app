@@ -1,0 +1,32 @@
+KENNEL MANAGER v75 — MODAL OPEN FOCUS GUARD
+
+Changes from v74:
+- Added a modal-open interaction guard to the regular Kennel Sheet.
+- Added the same guard to the Incoming long-press sheet.
+- Prevents the opening tap/long-press release from bleeding through into name inputs or PU/DO select controls.
+- Opening either menu should now wait for the user’s next deliberate tap before focusing a field or opening a time menu.
+- Bumped app/cache references from v74 to v75 so GitHub Pages/PWA updates cleanly.
+- Corrected service worker registration query from the stale v72 reference to v75.
+
+Preserved from v74:
+- 13 numbered kennel cards plus movable TOTAL tile = 14 visual layout objects.
+- Grey canvas background.
+- Empty/occupied kennels stay white/light.
+- PU kennels stay yellow.
+- Incoming DO indicators stay green.
+- Red star indicates incoming dog(s).
+- Regular tap opens Kennel Sheet.
+- Long-press opens Incoming menu.
+- Copy to Tomorrow behavior is preserved: PU dogs are removed unless incoming exists; incoming dogs become active occupants tomorrow.
+
+Files to upload/replace at GitHub repo root:
+- index.html
+- manifest.webmanifest
+- sw.js
+- Sansita-BlackItalic.ttf
+- app-icon-192.png
+- app-icon-512.png
+
+Notes:
+- The font and icons were not changed.
+- The old v74 notes file was replaced with this v75 notes file to avoid stale version instructions.
