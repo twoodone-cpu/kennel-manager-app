@@ -1,0 +1,19 @@
+KENNEL MANAGER CLEAN MASTER v74 — NO AUTO KEYBOARD
+
+Changes from v73:
+- Removed automatic focus/select from the regular kennel sheet.
+- Removed automatic focus/select from the incoming long-press sheet.
+- Opening either menu no longer pops the mobile keyboard immediately.
+- User must tap a name field to activate keyboard input.
+- Bumped app/cache references from v73 to v74 so GitHub Pages/PWA updates cleanly.
+
+Files to upload/replace at GitHub repo root:
+- index.html
+- manifest.webmanifest
+- sw.js
+- Sansita-BlackItalic.ttf
+- app-icon-192.png
+- app-icon-512.png
+
+Safe cleanup note:
+This package intentionally keeps only the canonical active app files/icons.

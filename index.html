@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=73">
-<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=73">
-<link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=73">
-<link rel="apple-touch-icon" href="app-icon-512.png?v=73">
+<link rel="manifest" href="manifest.webmanifest?v=74">
+<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=74">
+<link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=74">
+<link rel="apple-touch-icon" href="app-icon-512.png?v=74">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -257,7 +257,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v73-clean-master',
+    version:'v74-clean-master',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -711,7 +711,7 @@ function doResize(e){if(!resizing)return;e.preventDefault?.();const scale=boardS
 function stopResize(){saveLayouts();document.removeEventListener('pointermove',doResize);document.removeEventListener('pointerup',stopResize);resizing=null}
 function clearDogName(i){haptic('clear');const input=document.getElementById('dogName'+i);input.value='';previewCurrentKennel();input.blur();document.activeElement?.blur()}
 function previewCurrentKennel(){if(!activeKennel)return;const el=document.getElementById('k'+activeKennel);const k=KENNELS.find(x=>x.n===activeKennel);if(!el||!k)return;const existing=dayData()[activeKennel]||{};const incoming=incomingData(existing);const names=getSheetNames();const dog=names.length?{...existing,names,sizes:getSheetSizes(),pickupTime:document.getElementById('pickupTime').value,dropoffTime:document.getElementById('dropoffTime').value}:{...existing,names:[],sizes:[],pickupTime:'',dropoffTime:'',time:''};if(incoming)dog.incoming=incoming;el.className=kennelClass(dog);applyKennelLayout(el,activeKennel);el.innerHTML=kennelInnerHTML(k,dog)}
-function editKennel(n){activeKennel=n;const dd=dayData();const dog=dd[n]||{};document.getElementById('sheetTitle').textContent='Kennel '+n;document.getElementById('sheetDate').innerHTML=niceDate(activeDate);document.getElementById('dogName1').value=dog.names?.[0]||'';document.getElementById('dogName2').value=dog.names?.[1]||'';document.getElementById('dogName3').value=dog.names?.[2]||'';document.getElementById('dogName4').value=dog.names?.[3]||'';const currentNames=(dog.names||[]).filter(Boolean);for(let i=1;i<=4;i++){const defaultSize=defaultDogSize(currentNames.length||1,n);document.getElementById('dogSize'+i).value=dog.sizes?.[i-1]||defaultSize;updateSizeLabel(i)}document.getElementById('pickupTime').value=dog.pickupTime||'';document.getElementById('dropoffTime').value=dog.dropoffTime||'';document.getElementById('clearBtn').style.display=(dog.names||[]).length?'block':'none';document.getElementById('timeLine').textContent=dog.time?'Checked in: '+new Date(dog.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';document.getElementById('sheetOverlay').classList.add('open');setTimeout(()=>{const first=document.getElementById('dogName1');if(first){first.focus();first.select?.()}},80)}
+function editKennel(n){activeKennel=n;const dd=dayData();const dog=dd[n]||{};document.getElementById('sheetTitle').textContent='Kennel '+n;document.getElementById('sheetDate').innerHTML=niceDate(activeDate);document.getElementById('dogName1').value=dog.names?.[0]||'';document.getElementById('dogName2').value=dog.names?.[1]||'';document.getElementById('dogName3').value=dog.names?.[2]||'';document.getElementById('dogName4').value=dog.names?.[3]||'';const currentNames=(dog.names||[]).filter(Boolean);for(let i=1;i<=4;i++){const defaultSize=defaultDogSize(currentNames.length||1,n);document.getElementById('dogSize'+i).value=dog.sizes?.[i-1]||defaultSize;updateSizeLabel(i)}document.getElementById('pickupTime').value=dog.pickupTime||'';document.getElementById('dropoffTime').value=dog.dropoffTime||'';document.getElementById('clearBtn').style.display=(dog.names||[]).length?'block':'none';document.getElementById('timeLine').textContent=dog.time?'Checked in: '+new Date(dog.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';document.getElementById('sheetOverlay').classList.add('open');document.activeElement?.blur()}
 function refreshCanvasAfterViewportChange(options={}){
   updateMobileScale();
   if(options.resetPan){
@@ -771,7 +771,7 @@ function setupHapticFeedback(){
 function saveKennel(){const names=getSheetNames();const sizes=getSheetSizes();const pickupTime=document.getElementById('pickupTime').value;const dropoffTime=document.getElementById('dropoffTime').value;const dd={...dayData()};const dog={...(dd[activeKennel]||{})};if(!names.length){delete dog.names;delete dog.sizes;delete dog.pickupTime;delete dog.dropoffTime;delete dog.time}else{dog.names=names;dog.sizes=sizes;dog.pickupTime=pickupTime;dog.dropoffTime=dropoffTime;dog.time=dd[activeKennel]?.time||new Date().toISOString()}const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeKennel]=cleaned;else delete dd[activeKennel];setDayData(dd);saveAll();haptic('success');closeSheet();render()}
 function clearKennel(){const dd={...dayData()};const dog={...(dd[activeKennel]||{})};delete dog.names;delete dog.sizes;delete dog.pickupTime;delete dog.dropoffTime;delete dog.time;const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeKennel]=cleaned;else delete dd[activeKennel];setDayData(dd);saveAll();haptic('clear');closeSheet();render()}
 function getIncomingSheetNames(){return [1,2,3,4].map(i=>capitalizeName(document.getElementById('incomingDogName'+i).value.trim())).filter(Boolean)}
-function openIncomingSheet(n){activeIncomingKennel=n;const dog=dayData()[n]||{};const incoming=incomingData(dog);document.getElementById('incomingSheetTitle').textContent='Kennel '+n+' — Incoming';document.getElementById('incomingSheetDate').innerHTML=niceDate(activeDate);for(let i=1;i<=4;i++)document.getElementById('incomingDogName'+i).value=incoming?.names?.[i-1]||'';document.getElementById('incomingDropoffTime').value=incoming?.dropoffTime||'';document.getElementById('incomingClearBtn').style.display=incoming?'block':'none';document.getElementById('incomingOverlay').classList.add('open');setTimeout(()=>{const first=document.getElementById('incomingDogName1');if(first){first.focus();first.select?.()}},80)}
+function openIncomingSheet(n){activeIncomingKennel=n;const dog=dayData()[n]||{};const incoming=incomingData(dog);document.getElementById('incomingSheetTitle').textContent='Kennel '+n+' — Incoming';document.getElementById('incomingSheetDate').innerHTML=niceDate(activeDate);for(let i=1;i<=4;i++)document.getElementById('incomingDogName'+i).value=incoming?.names?.[i-1]||'';document.getElementById('incomingDropoffTime').value=incoming?.dropoffTime||'';document.getElementById('incomingClearBtn').style.display=incoming?'block':'none';document.getElementById('incomingOverlay').classList.add('open');document.activeElement?.blur()}
 function closeIncomingSheet(){document.getElementById('incomingOverlay').classList.remove('open');document.activeElement?.blur();setTimeout(()=>requestLayoutRefresh({scrollTop:true}),250);setTimeout(()=>requestLayoutRefresh({scrollTop:true}),650)}
 function incomingOverlayClose(e){if(e.target.id==='incomingOverlay')closeIncomingSheet()}
 function saveIncomingKennel(){if(!activeIncomingKennel)return;const names=getIncomingSheetNames();const dropoffTime=document.getElementById('incomingDropoffTime').value;const dd={...dayData()};const dog={...(dd[activeIncomingKennel]||{})};if(names.length){dog.incoming={names,dropoffTime}}else{delete dog.incoming}const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeIncomingKennel]=cleaned;else delete dd[activeIncomingKennel];setDayData(dd);saveAll();haptic('success');closeIncomingSheet();render()}
