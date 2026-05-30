@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=76">
-<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=76">
-<link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=76">
-<link rel="apple-touch-icon" href="app-icon-512.png?v=76">
+<link rel="manifest" href="manifest.webmanifest?v=77">
+<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=77">
+<link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=77">
+<link rel="apple-touch-icon" href="app-icon-512.png?v=77">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -74,9 +74,9 @@
   .status-chip.pu{background:#fde047;color:#111827;border-color:#ca8a04}.status-chip.do{background:#22c55e;color:#fff;border-color:#15803d}.status-time{display:inline-flex;align-items:center;height:24px;padding:0 3px;font-size:15px;font-weight:900;line-height:1}.status-time.pu{color:#15803d}.status-time.do{color:#111827}
   .kennel.turnover{background:#fffef2;border:2px solid #111827;box-shadow:0 0 0 3px #facc15 inset,0 0 0 1px rgba(0,0,0,.22),0 0 12px rgba(250,204,21,.55)}
   .turnover-current{position:absolute;left:10px;right:10px;top:34px;bottom:44%;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;overflow:hidden;color:#0f1d33;font-weight:900}
-  .turnover-incoming{position:absolute;left:6px;right:6px;top:58%;bottom:6px;z-index:4;border-radius:10px;background:#bbf7d0;border:2px solid #22c55e;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;overflow:hidden;padding:5px 6px 4px;color:#052e16;font-weight:900;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
-  .turnover-divider{position:absolute;left:10px;right:10px;top:55.5%;height:3px;background:rgba(17,24,39,.45);border-radius:999px;z-index:5}
-  .turnover-star{position:absolute;left:9px;top:calc(58% + 7px);width:24px;height:24px;border-radius:999px;background:#dc2626;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;line-height:1;z-index:8;text-shadow:0 1px 2px rgba(0,0,0,.35);pointer-events:none}
+  .turnover-incoming{position:absolute;left:0;right:0;top:58%;bottom:0;z-index:4;background:#bbf7d0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;overflow:hidden;color:#052e16;font-weight:900}
+  .turnover-divider{position:absolute;left:8px;right:8px;top:55.5%;height:3px;background:rgba(17,24,39,.45);border-radius:999px;z-index:5}
+  .turnover-star{position:absolute;right:8px;bottom:7px;width:24px;height:24px;border-radius:999px;background:#dc2626;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;line-height:1;z-index:8;text-shadow:0 1px 2px rgba(0,0,0,.35);pointer-events:none}
   .turnover-names{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;overflow:hidden;line-height:1.02}
   .turnover-name{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;line-height:1.02}
   .turnover-status{display:flex;gap:5px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:2px;max-width:100%}
@@ -84,8 +84,8 @@
   .turnover-status .status-time{height:22px;font-size:13px}
   .turnover-incoming .turnover-status .status-chip.do{background:#16a34a;border-color:#166534;color:#fff}
   #k8 .turnover-current,#k9 .turnover-current,#k10 .turnover-current,#k11 .turnover-current,#k12 .turnover-current,#k13 .turnover-current{top:31px;bottom:45%;left:8px;right:8px;gap:1px}
-  #k8 .turnover-incoming,#k9 .turnover-incoming,#k10 .turnover-incoming,#k11 .turnover-incoming,#k12 .turnover-incoming,#k13 .turnover-incoming{left:5px;right:5px;top:58%;bottom:5px;border-radius:8px;padding:4px 5px 3px}
-  #k8 .turnover-star,#k9 .turnover-star,#k10 .turnover-star,#k11 .turnover-star,#k12 .turnover-star,#k13 .turnover-star{left:7px;top:calc(58% + 5px);width:20px;height:20px;font-size:12px}
+  #k8 .turnover-incoming,#k9 .turnover-incoming,#k10 .turnover-incoming,#k11 .turnover-incoming,#k12 .turnover-incoming,#k13 .turnover-incoming{left:0;right:0;top:58%;bottom:0}
+  #k8 .turnover-star,#k9 .turnover-star,#k10 .turnover-star,#k11 .turnover-star,#k12 .turnover-star,#k13 .turnover-star{right:6px;bottom:5px;width:20px;height:20px;font-size:12px}
   .kennel.turnover .tag{display:none}
   .tag{position:absolute;left:8px;bottom:5px;font-size:17px;font-weight:900;font-style:normal;color:#111827;text-transform:uppercase;letter-spacing:.3px}
   .tag-bird,.tag-tall{left:auto;right:8px;bottom:8px;display:flex;align-items:center;justify-content:center;min-width:82px;height:34px;padding:0 14px;border:2px solid #3b82f6;border-radius:999px;background:#dbeafe;color:#111827;font-size:18px;font-weight:900;letter-spacing:.5px;font-style:normal;box-shadow:0 2px 5px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.45);z-index:5}
@@ -272,7 +272,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v75-focus-guard',
+    version:'v77-clean-split',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -1021,7 +1021,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=76').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=77').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);

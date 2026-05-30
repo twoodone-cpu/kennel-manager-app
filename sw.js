@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v76-turnover-split';
+const CACHE_NAME='kennel-manager-v77-clean-split';
 const APP_SHELL = [
   './',
   './index.html',

@@ -1,0 +1,20 @@
+KENNEL MANAGER CLEAN MASTER v77 — CLEAN TURNOVER SPLIT
+
+Changes from v76:
+- Kept the PU + incoming turnover split layout trigger exactly the same.
+- Changed the incoming area from an inset padded green mini-panel to a clean green lower section below the divider.
+- Moved the incoming red star to the lower-right corner of the kennel/green lower section.
+- Preserved the full yellow pickup kennel identity for PU + incoming turnover cases.
+- Preserved v75 menu opening focus guard behavior.
+- Bumped app/cache references from v76 to v77 so GitHub Pages/PWA updates cleanly.
+
+Files to upload/replace at GitHub repo root:
+- index.html
+- manifest.webmanifest
+- sw.js
+- Sansita-BlackItalic.ttf
+- app-icon-192.png
+- app-icon-512.png
+
+Optional documentation file:
+- UPLOAD_NOTES_clean_split_v77.txt
