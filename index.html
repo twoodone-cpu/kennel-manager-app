@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=80">
-<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=80">
-<link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=80">
-<link rel="apple-touch-icon" href="app-icon-512.png?v=80">
+<link rel="manifest" href="manifest.webmanifest?v=81">
+<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=81">
+<link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=81">
+<link rel="apple-touch-icon" href="app-icon-512.png?v=81">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -140,6 +140,7 @@
 const KENNELS=[{n:1},{n:2},{n:3},{n:4},{n:5,tag:'BIRD'},{n:6,tag:'TALL'},{n:7,tag:'TALL'},{n:13,tag:'BOX'},{n:12,tag:'BOX'},{n:11,tag:'BOX'},{n:8,tag:'BOX'},{n:9,tag:'BOX'},{n:10,tag:'BOX'}];
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const $=id=>document.getElementById(id);
+let resetCanvasGestureState=()=>{};
 function key(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function todayKey(){return key(new Date())}
 function dateFromKey(k){const parts=k.split('-').map(Number);return new Date(parts[0],parts[1]-1,parts[2])}
@@ -266,7 +267,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v80-audit-lite',
+    version:'v81-zoom-recovery',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -447,6 +448,16 @@ function setupCanvasPinchZoom(){
   let pinchState=null;
   let movedDuringGesture=false;
 
+  resetCanvasGestureState=()=>{
+    for(const id of points.keys()){
+      try{if(board.hasPointerCapture?.(id))board.releasePointerCapture(id)}catch{}
+    }
+    points.clear();
+    panState=null;
+    pinchState=null;
+    movedDuringGesture=false;
+  };
+
   function beginPanFromPointer(e){
     const pan=getCanvasPan();
     panState={
@@ -459,7 +470,7 @@ function setupCanvasPinchZoom(){
   }
 
   board.addEventListener('pointerdown',e=>{
-    if(resizeMode)return;
+    if(resizeMode||isModalOrMenuOpen())return;
     points.set(e.pointerId,e);
     try{board.setPointerCapture(e.pointerId)}catch{}
 
@@ -505,7 +516,7 @@ function setupCanvasPinchZoom(){
   },{passive:false});
 
   function cleanup(e){
-    points.delete(e.pointerId);
+    if(e?.pointerId!==undefined)points.delete(e.pointerId);
     if(points.size<2)pinchState=null;
     if(points.size===0){
       panState=null;
@@ -526,6 +537,11 @@ function setupCanvasPinchZoom(){
 
   board.addEventListener('pointerup',cleanup);
   board.addEventListener('pointercancel',cleanup);
+  board.addEventListener('lostpointercapture',cleanup);
+  window.addEventListener('pointerup',cleanup,{passive:true});
+  window.addEventListener('pointercancel',cleanup,{passive:true});
+  window.addEventListener('blur',resetCanvasGestureState,{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)resetCanvasGestureState()});
 }
 
 async function requestPersistentStorage(){
@@ -770,7 +786,7 @@ function armModalOpenGuard(overlay){
 function releaseModalOpenGuard(overlay){
   if(overlay&&overlay._guardCleanup)overlay._guardCleanup();
 }
-function editKennel(n){activeKennel=n;const dd=dayData();const dog=dd[n]||{};$('sheetTitle').textContent='Kennel '+n;$('sheetDate').innerHTML=niceDate(activeDate);$('dogName1').value=dog.names?.[0]||'';$('dogName2').value=dog.names?.[1]||'';$('dogName3').value=dog.names?.[2]||'';$('dogName4').value=dog.names?.[3]||'';const currentNames=(dog.names||[]).filter(Boolean);for(let i=1;i<=4;i++){const defaultSize=defaultDogSize(currentNames.length||1,n);$('dogSize'+i).value=dog.sizes?.[i-1]||defaultSize;updateSizeLabel(i)}$('pickupTime').value=dog.pickupTime||'';$('dropoffTime').value=dog.dropoffTime||'';$('clearBtn').style.display=(dog.names||[]).length?'block':'none';$('timeLine').textContent=dog.time?'Checked in: '+new Date(dog.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';const overlay=$('sheetOverlay');overlay.classList.add('open');armModalOpenGuard(overlay);blurActiveControl();setTimeout(blurActiveControl,80)}
+function editKennel(n){resetCanvasGestureState();activeKennel=n;const dd=dayData();const dog=dd[n]||{};$('sheetTitle').textContent='Kennel '+n;$('sheetDate').innerHTML=niceDate(activeDate);$('dogName1').value=dog.names?.[0]||'';$('dogName2').value=dog.names?.[1]||'';$('dogName3').value=dog.names?.[2]||'';$('dogName4').value=dog.names?.[3]||'';const currentNames=(dog.names||[]).filter(Boolean);for(let i=1;i<=4;i++){const defaultSize=defaultDogSize(currentNames.length||1,n);$('dogSize'+i).value=dog.sizes?.[i-1]||defaultSize;updateSizeLabel(i)}$('pickupTime').value=dog.pickupTime||'';$('dropoffTime').value=dog.dropoffTime||'';$('clearBtn').style.display=(dog.names||[]).length?'block':'none';$('timeLine').textContent=dog.time?'Checked in: '+new Date(dog.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';const overlay=$('sheetOverlay');overlay.classList.add('open');armModalOpenGuard(overlay);blurActiveControl();setTimeout(blurActiveControl,80)}
 function refreshCanvasAfterViewportChange(options={}){
   updateMobileScale();
   if(options.resetPan){
@@ -804,9 +820,7 @@ function closeSheet(){
   releaseModalOpenGuard(overlay);
   overlay.classList.remove('open');
   blurActiveControl();
-
-  setTimeout(()=>requestLayoutRefresh({scrollTop:true}),250);
-  setTimeout(()=>requestLayoutRefresh({scrollTop:true}),650);
+  recoverCanvasAfterModal();
 }
 function overlayClose(e){if(e.target.id==='sheetOverlay')closeSheet()}
 
@@ -832,13 +846,13 @@ function setupHapticFeedback(){
 function saveKennel(){const names=getSheetNames();const sizes=getSheetSizes();const pickupTime=$('pickupTime').value;const dropoffTime=$('dropoffTime').value;const dd={...dayData()};const dog={...(dd[activeKennel]||{})};if(!names.length){delete dog.names;delete dog.sizes;delete dog.pickupTime;delete dog.dropoffTime;delete dog.time}else{dog.names=names;dog.sizes=sizes;dog.pickupTime=pickupTime;dog.dropoffTime=dropoffTime;dog.time=dd[activeKennel]?.time||new Date().toISOString()}const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeKennel]=cleaned;else delete dd[activeKennel];setDayData(dd);saveAll();haptic('success');closeSheet();render()}
 function clearKennel(){const dd={...dayData()};const dog={...(dd[activeKennel]||{})};delete dog.names;delete dog.sizes;delete dog.pickupTime;delete dog.dropoffTime;delete dog.time;const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeKennel]=cleaned;else delete dd[activeKennel];setDayData(dd);saveAll();haptic('clear');closeSheet();render()}
 function getIncomingSheetNames(){return [1,2,3,4].map(i=>capitalizeName($('incomingDogName'+i).value.trim())).filter(Boolean)}
-function openIncomingSheet(n){activeIncomingKennel=n;const dog=dayData()[n]||{};const incoming=incomingData(dog);$('incomingSheetTitle').textContent='Kennel '+n+' — Incoming';$('incomingSheetDate').innerHTML=niceDate(activeDate);for(let i=1;i<=4;i++)$('incomingDogName'+i).value=incoming?.names?.[i-1]||'';$('incomingDropoffTime').value=incoming?.dropoffTime||'';$('incomingClearBtn').style.display=incoming?'block':'none';const overlay=$('incomingOverlay');overlay.classList.add('open');armModalOpenGuard(overlay);blurActiveControl();setTimeout(blurActiveControl,80)}
-function closeIncomingSheet(){const overlay=$('incomingOverlay');releaseModalOpenGuard(overlay);overlay.classList.remove('open');blurActiveControl();setTimeout(()=>requestLayoutRefresh({scrollTop:true}),250);setTimeout(()=>requestLayoutRefresh({scrollTop:true}),650)}
+function openIncomingSheet(n){resetCanvasGestureState();activeIncomingKennel=n;const dog=dayData()[n]||{};const incoming=incomingData(dog);$('incomingSheetTitle').textContent='Kennel '+n+' — Incoming';$('incomingSheetDate').innerHTML=niceDate(activeDate);for(let i=1;i<=4;i++)$('incomingDogName'+i).value=incoming?.names?.[i-1]||'';$('incomingDropoffTime').value=incoming?.dropoffTime||'';$('incomingClearBtn').style.display=incoming?'block':'none';const overlay=$('incomingOverlay');overlay.classList.add('open');armModalOpenGuard(overlay);blurActiveControl();setTimeout(blurActiveControl,80)}
+function closeIncomingSheet(){const overlay=$('incomingOverlay');releaseModalOpenGuard(overlay);overlay.classList.remove('open');blurActiveControl();recoverCanvasAfterModal()}
 function incomingOverlayClose(e){if(e.target.id==='incomingOverlay')closeIncomingSheet()}
 function saveIncomingKennel(){if(!activeIncomingKennel)return;const names=getIncomingSheetNames();const dropoffTime=$('incomingDropoffTime').value;const dd={...dayData()};const dog={...(dd[activeIncomingKennel]||{})};if(names.length){dog.incoming={names,dropoffTime}}else{delete dog.incoming}const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeIncomingKennel]=cleaned;else delete dd[activeIncomingKennel];setDayData(dd);saveAll();haptic('success');closeIncomingSheet();render()}
 function clearIncomingKennel(){if(!activeIncomingKennel)return;const dd={...dayData()};const dog={...(dd[activeIncomingKennel]||{})};delete dog.incoming;const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeIncomingKennel]=cleaned;else delete dd[activeIncomingKennel];setDayData(dd);saveAll();haptic('clear');closeIncomingSheet();render()}
 
-function openCalendar(){const d=dateFromKey(activeDate);calYear=d.getFullYear();calMonth=d.getMonth();calSelectedDate=activeDate;drawCalendar();$('calOverlay').classList.add('open')}
+function openCalendar(){resetCanvasGestureState();const d=dateFromKey(activeDate);calYear=d.getFullYear();calMonth=d.getMonth();calSelectedDate=activeDate;drawCalendar();$('calOverlay').classList.add('open')}
 function closeCalendar(){$('calOverlay').classList.remove('open')}
 function calendarOverlayClose(e){if(e.target.id==='calOverlay')closeCalendar()}
 function moveCalMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++}if(calMonth<0){calMonth=11;calYear--}drawCalendar()}
@@ -947,12 +961,20 @@ function moveDay(dir){const d=dateFromKey(activeDate);d.setDate(d.getDate()+dir)
 function goToday(){activeDate=todayKey();render()}
 
 function resetCanvasToHome(){
+  resetCanvasGestureState();
   document.body.dataset.canvasZoom='1.000';
   document.body.dataset.canvasPanX='0';
   document.body.dataset.canvasPanY='0';
   document.body.style.setProperty('--canvas-zoom',1);
   document.body.style.setProperty('--canvas-pan-x','0px');
   document.body.style.setProperty('--canvas-pan-y','0px');
+  updateZoomHeaderVisibility();
+}
+function recoverCanvasAfterModal(){
+  resetCanvasToHome();
+  requestLayoutRefresh({resetPan:true,scrollTop:true});
+  setTimeout(()=>requestLayoutRefresh({resetPan:true,scrollTop:true}),300);
+  setTimeout(()=>requestLayoutRefresh({resetPan:true,scrollTop:true}),750);
 }
 const STARTUP_SPLASH_MIN_MS=850;
 const startupBootStarted=Date.now();
@@ -1010,7 +1032,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=80').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=81').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);

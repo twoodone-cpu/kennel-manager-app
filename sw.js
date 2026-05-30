@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v80-audit-lite';
+const CACHE_NAME='kennel-manager-v81-zoom-recovery';
 const APP_SHELL = [
   './',
   './index.html',
