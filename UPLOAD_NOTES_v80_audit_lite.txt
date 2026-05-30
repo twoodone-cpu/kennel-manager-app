@@ -1,0 +1,30 @@
+KENNEL MANAGER v80 — AUDIT / LIGHT CLEANUP
+
+Purpose:
+- Audited the current working GitHub/PWA package for old, redundant, and unused code.
+- Kept the accepted v79 visual behavior intact: status pills, pickup/drop-off colors, turnover split, incoming star placement, long-press incoming menu, keyboard focus guard, copy-to-tomorrow behavior, and TOTAL logic.
+
+Safe cleanup performed:
+- Removed redundant dog-name font CSS that was no longer controlling visible name sizing because each dog slot now uses the saved inline font size.
+- Removed duplicate kennel time-position rule for Kennel 1.
+- Removed the obsolete tagRight layout flag and the unused .tag.right CSS rule; BIRD/TALL/BOX label placement remains handled by their specific tag classes.
+- Collapsed small helper functions used only by cleanupKennelRecord into one direct cleanup check.
+- Simplified the default dog-size helper.
+- Added a compact DOM lookup helper to reduce repeated document.getElementById calls.
+- Removed older v77/v79 cache-busting strings from the app shell and bumped the package to v80 so the service worker/PWA refreshes cleanly.
+
+Audit checks run:
+- JavaScript syntax check passed for both inline script blocks.
+- Service worker syntax check passed.
+- Verified no v77/v79/clean-split cache references remain in index.html, manifest.webmanifest, or sw.js.
+- Verified no obviously unreferenced function declarations remain by static usage scan.
+
+Files to upload/replace at GitHub repo root:
+- index.html
+- manifest.webmanifest
+- sw.js
+- app-icon-192.png
+- app-icon-512.png
+
+Important:
+- Keep the existing Sansita-BlackItalic.ttf file in the GitHub repo root. This package expects it to remain there for the date font.
