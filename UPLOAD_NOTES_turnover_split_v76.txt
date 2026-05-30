@@ -1,0 +1,22 @@
+KENNEL MANAGER v76 — TURNOVER SPLIT DISPLAY
+
+Changes from v75:
+- Added Option 1 visual display for true same-kennel turnover cases.
+- Trigger: current dog(s) marked PU + saved incoming dog(s) in the same kennel.
+- Keeps the whole kennel in yellow pickup styling.
+- Adds a divider line and green incoming panel below the divider.
+- Keeps the red star as the incoming marker inside the lower incoming section.
+- Incoming dogs remain future reservations and do not count toward TOTAL until Copy to Tomorrow promotes them.
+- Preserved regular tap Kennel Sheet, long-press Incoming Sheet, focus guard/no auto keyboard, and Copy to Tomorrow behavior.
+
+Files to upload/replace at GitHub repo root:
+- index.html
+- manifest.webmanifest
+- sw.js
+- Sansita-BlackItalic.ttf
+- app-icon-192.png
+- app-icon-512.png
+- UPLOAD_NOTES_turnover_split_v76.txt
+
+Optional cleanup:
+- UPLOAD_NOTES_focus_guard_v75.txt can be kept as history or deleted after v76 is confirmed.

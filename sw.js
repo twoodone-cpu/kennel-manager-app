@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v75-focus-guard';
+const CACHE_NAME='kennel-manager-v76-turnover-split';
 const APP_SHELL = [
   './',
   './index.html',
