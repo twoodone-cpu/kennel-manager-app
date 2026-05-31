@@ -1,0 +1,24 @@
+KENNEL MANAGER v82 — MOVED ARROW OPTION
+
+Changes from v81:
+- Added a Moved option to the incoming long-press menu.
+- Moved appears last in the incoming drop-off selector, after Poss?.
+- Incoming entries marked Moved use a yellow left-arrow badge instead of the red star.
+- The yellow left arrow sits at the bottom-left corner of the kennel and is slightly larger than the red star.
+- Existing red-star behavior is preserved for normal incoming drop-offs.
+- Moved remains visual-only and does not change TOTAL/occupancy logic.
+- Preserved the v81 zoom recovery safeguards.
+- Bumped manifest/icon query refs, exported backup version string, and service-worker cache name to v82.
+
+Files to upload/replace at GitHub repo root:
+- index.html
+- manifest.webmanifest
+- sw.js
+- app-icon-192.png
+- app-icon-512.png
+
+Optional documentation file:
+- UPLOAD_NOTES_v82_moved_arrow.txt
+
+Reminder:
+- Keep Sansita-BlackItalic.ttf in the GitHub repo root. This package does not include the font file.
