@@ -61,9 +61,9 @@
   #k8 .incoming-badge,#k9 .incoming-badge,#k10 .incoming-badge,#k11 .incoming-badge,#k12 .incoming-badge,#k13 .incoming-badge{top:4px;right:6px;width:26px;height:26px;font-size:16px}
   .turnover-star{position:absolute;right:8px;top:calc(58% + 7px);width:24px;height:24px;border-radius:999px;background:#dc2626;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;line-height:1;z-index:8;text-shadow:0 1px 2px rgba(0,0,0,.35);pointer-events:none}
   #k8 .turnover-star,#k9 .turnover-star,#k10 .turnover-star,#k11 .turnover-star,#k12 .turnover-star,#k13 .turnover-star{right:6px;top:calc(58% + 5px);width:20px;height:20px;font-size:12px}
-  .moved-arrow{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:74px;height:38px;border-radius:999px;background:#1d2fe2;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.18);z-index:8;pointer-events:none}
+  .moved-arrow{position:absolute;right:10px;bottom:10px;width:74px;height:38px;border-radius:999px;background:#1d2fe2;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.18);z-index:8;pointer-events:none}
   .moved-arrow svg{display:block;width:50px;height:24px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.08))}
-  #k8 .moved-arrow,#k9 .moved-arrow,#k10 .moved-arrow,#k11 .moved-arrow,#k12 .moved-arrow,#k13 .moved-arrow{width:66px;height:34px;bottom:8px}
+  #k8 .moved-arrow,#k9 .moved-arrow,#k10 .moved-arrow,#k11 .moved-arrow,#k12 .moved-arrow,#k13 .moved-arrow{right:8px;bottom:8px;width:66px;height:34px}
   #k8 .moved-arrow svg,#k9 .moved-arrow svg,#k10 .moved-arrow svg,#k11 .moved-arrow svg,#k12 .moved-arrow svg,#k13 .moved-arrow svg{width:44px;height:21px}
   .dog{position:absolute;left:10px;right:10px;top:58px;bottom:56px;font-weight:900;color:#0f1d33;line-height:1.08;word-break:break-word;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;gap:3px}
   #k8 .dog,#k9 .dog,#k10 .dog,#k11 .dog,#k12 .dog,#k13 .dog{top:42px;bottom:44px;text-align:center;align-items:center;justify-content:flex-start;gap:2px}
@@ -271,7 +271,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v84-centered-moved-arrow',
+    version:'v85-moved-arrow-lower-right',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
