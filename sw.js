@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v85-moved-arrow-lower-right';
+const CACHE_NAME='kennel-manager-v86-smaller-moved-arrow';
 const APP_SHELL = [
   './',
   './index.html',
