@@ -1,0 +1,13 @@
+Kennel Manager – v85 moved arrow lower right
+
+Changes in this version
+- Moved the custom blue moved arrow from bottom-center to lower-right.
+- This avoids overlap with multiple incoming dog names in turnover kennels.
+- Kept the same blue oval + white right arrow graphic.
+- Red star behavior remains unchanged for regular incoming drop-offs.
+- Updated manifest start_url, service worker cache name, and backup export version to v85.
+
+Audit notes
+- Only marker position and version metadata were changed.
+- Incoming MOVED logic still uses the same saved value and rendering path.
+- Normal incoming star rendering remains unchanged.
