@@ -2,7 +2,7 @@
   "name": "Kennel Manager",
   "short_name": "Kennel",
   "description": "Personal kennel management board",
-  "start_url": "./index.html?v=88",
+  "start_url": "./index.html?v=89",
   "scope": "./",
   "display": "fullscreen",
   "orientation": "portrait",
