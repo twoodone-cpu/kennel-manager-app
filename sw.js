@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v91-modal-ghost-block-fix';
+const CACHE_NAME='kennel-manager-v92-canvas-repaint-zoom-stability';
 const APP_SHELL = [
   './',
   './index.html',

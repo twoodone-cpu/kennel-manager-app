@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=83">
-<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=83">
-<link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=83">
-<link rel="apple-touch-icon" href="app-icon-512.png?v=83">
+<link rel="manifest" href="manifest.webmanifest?v=92">
+<link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=92">
+<link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=92">
+<link rel="apple-touch-icon" href="app-icon-512.png?v=92">
 <style>
   @font-face{font-family:'SansitaDate';src:url('./Sansita-BlackItalic.ttf') format('truetype');font-display:swap;} 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -43,7 +43,8 @@
   .overflow-menu button:active,.overflow-menu button:hover{background:#dbeafe}
   .backup-file-input{display:none}
 
-  .board{position:relative;margin:0 14px 24px;width:980px;height:var(--board-height);background:#c9ced4;border:4px solid #f2a14e;border-radius:22px;overflow:hidden;touch-action:none;transform:translateX(var(--day-shift,0px));will-change:transform}
+  .board{position:relative;margin:0 14px 24px;width:980px;height:var(--board-height);background:#c9ced4;border:4px solid #f2a14e;border-radius:22px;overflow:hidden;touch-action:none;transform:translateX(var(--day-shift,0px));will-change:transform;contain:layout paint style;isolation:isolate;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .board.canvas-resetting{opacity:.996!important;filter:brightness(1.0001)}
   .kennel{position:absolute;background:#f7f7f7;border:2px solid #9ba3ae;cursor:pointer;padding:6px 8px;color:#294158;overflow:hidden}
   .board.resize-mode .kennel{outline:2px dashed #f59e0b;overflow:visible;z-index:6;cursor:move;touch-action:none}
   .board.resize-mode .kennel.dragging{opacity:.82;box-shadow:0 8px 22px rgba(0,0,0,.32)}
@@ -271,7 +272,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v91-modal-ghost-block-fix',
+    version:'v92-canvas-repaint-zoom-stability',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -380,7 +381,8 @@ function getCanvasPan(){return {x:Number(document.body.dataset.canvasPanX||0),y:
 function setCanvasZoom(value,focalX=null,focalY=null){
   const board=$('board');
   const oldZoom=getCanvasZoom();
-  const newZoom=Math.min(3,Math.max(1,value));
+  const newZoomRaw=Math.min(3,Math.max(1,value));
+  const newZoom=newZoomRaw<1.035?1:newZoomRaw;
 
   if(!board){
     document.body.dataset.canvasZoom=newZoom.toFixed(3);
@@ -440,7 +442,9 @@ function updateMobileScale(resetZoom=false){
   document.body.style.setProperty('--board-height',boardHeight+'px');
 }
 window.addEventListener('resize',()=>requestLayoutRefresh());
-window.addEventListener('orientationchange',()=>requestLayoutRefresh({resetPan:true,delay:260}));
+window.addEventListener('orientationchange',()=>requestLayoutRefresh({resetPan:true,forceRender:true,delay:300}));
+window.addEventListener('focus',()=>setTimeout(()=>{ensureCanvasIntegrity();forceCanvasCompositorReset();},120));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>{ensureCanvasIntegrity();forceCanvasCompositorReset();},160)});
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{if(isModalOrMenuOpen())return;requestLayoutRefresh()})}
 function pinchDistance(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 function setupCanvasPinchZoom(){
@@ -805,8 +809,12 @@ function renderKennelAndTotal(n){
   renderTotalTile();
 }
 function renderKennelAndTotalAfterModal(n){
-  const run=()=>renderKennelAndTotal(n);
-  requestAnimationFrame(()=>requestAnimationFrame(run));
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      render();
+      forceCanvasCompositorReset();
+    },90);
+  });
 }
 
 function toggleResizeMode(){resizeMode=!resizeMode;const mb=$('resizeMenuBtn');if(mb)mb.textContent=resizeMode?'Exit Resize Layout':'Resize Layout';$('board').classList.toggle('resize-mode',resizeMode);closeOverflowMenu();render()}
@@ -877,12 +885,40 @@ function requestLayoutRefresh(options={}){
     refreshCanvasAfterViewportChange(runOptions);
   },delay);
 }
+
+function forceCanvasCompositorReset(){
+  const board=$('board');
+  if(!board)return;
+  const previousWillChange=board.style.willChange;
+  const previousTransition=board.style.transition;
+  board.style.transition='none';
+  board.style.willChange='auto';
+  board.classList.add('canvas-resetting');
+  void board.offsetHeight;
+  requestAnimationFrame(()=>{
+    board.classList.remove('canvas-resetting');
+    board.style.willChange=previousWillChange||'';
+    board.style.transition=previousTransition||'';
+    void board.offsetHeight;
+  });
+}
+function ensureCanvasIntegrity(){
+  const board=$('board');
+  if(!board)return;
+  const expected=KENNELS.length+1;
+  const badChildren=board.children.length!==expected;
+  const rect=board.getBoundingClientRect();
+  const badRect=!Number.isFinite(rect.width)||!Number.isFinite(rect.height)||rect.width<120||rect.height<240;
+  if(badChildren||badRect){
+    resetCanvasToHome();
+    render();
+    forceCanvasCompositorReset();
+  }
+}
 function closeModalOverlay(overlay){
   if(!overlay)return;
   releaseModalOpenGuard(overlay);
   overlay.classList.remove('open');
-  overlay.style.display='none';
-  requestAnimationFrame(()=>{overlay.style.display=''});
 }
 function closeSheet(){
   closeModalOverlay($('sheetOverlay'));
@@ -1039,7 +1075,8 @@ function resetCanvasToHome(){
 }
 function recoverCanvasAfterModal(){
   resetCanvasToHome();
-  requestLayoutRefresh({resetPan:true,scrollTop:true,delay:140});
+  requestLayoutRefresh({resetPan:true,forceRender:true,scrollTop:true,delay:160});
+  setTimeout(()=>{ensureCanvasIntegrity();forceCanvasCompositorReset();},260);
 }
 const STARTUP_SPLASH_MIN_MS=850;
 const startupBootStarted=Date.now();
@@ -1069,8 +1106,9 @@ function stabilizeStartupLayout(){
       document.documentElement.classList.remove('app-booting');
       hideStartupSplash();
       setTimeout(()=>{
-        refreshCanvasAfterViewportChange();
+        refreshCanvasAfterViewportChange({forceRender:true});
         updateZoomHeaderVisibility();
+        forceCanvasCompositorReset();
       },300);
     },remaining);
   };
@@ -1097,7 +1135,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=81').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=92').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);
