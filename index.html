@@ -94,8 +94,8 @@
   .cal-card{width:100%;max-width:380px;background:#f8fafc;border-radius:20px;padding:16px;box-shadow:0 12px 35px rgba(0,0,0,.28);color:#0f1d33}.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.cal-month{font-size:22px;font-weight:900;color:#0f1d33}.cal-nav{width:42px;height:38px;border:none;border-radius:10px;background:#3b82f6;color:#fff;font-size:20px;font-weight:900;cursor:pointer}
   .cal-weekdays,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}.cal-weekdays div{font-size:11px;font-weight:900;color:#64748b;padding:5px 0}.cal-day{height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;cursor:pointer;background:#eef2f7;color:#334155;position:relative}.cal-day.blank{background:transparent;cursor:default}.cal-day.today{background:#dbeafe;color:#1d4ed8}.cal-day.selected{background:#2563eb;color:#fff}.cal-day.has-data::after{content:'';position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:#f59e0b}.cal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.cal-action{border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:900;background:#e2e8f0;color:#334155;cursor:pointer}.cal-action.primary{background:#2563eb;color:#fff}
 
-  .sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.10);display:none;align-items:flex-end;justify-content:center;z-index:50;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}.sheet-overlay.open{display:flex}
-  .sheet{touch-action:auto;width:100%;max-width:640px;background:#f8fafc;background:rgba(248,250,252,.42);border:1px solid rgba(255,255,255,.38);border-radius:22px 22px 0 0;padding:10px 18px 18px;box-shadow:0 -14px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.65);animation:slideUp .18s ease-out;color:#0f1d33;max-height:92vh;overflow-y:auto;backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%)}
+  .sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.10);display:none;align-items:flex-end;justify-content:center;z-index:50}.sheet-overlay.open{display:flex}
+  .sheet{touch-action:auto;width:100%;max-width:640px;background:#f8fafc;background:rgba(248,250,252,.94);border:1px solid rgba(255,255,255,.38);border-radius:22px 22px 0 0;padding:10px 18px 18px;box-shadow:0 -14px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.65);animation:slideUp .18s ease-out;color:#0f1d33;max-height:92vh;overflow-y:auto}
   @keyframes slideUp{from{transform:translateY(60px);opacity:.7}to{transform:translateY(0);opacity:1}}
   .handle{width:44px;height:5px;background:rgba(100,116,139,.45);border-radius:999px;margin:0 auto 8px}.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}.sheet-title{font-size:22px;font-weight:900;color:#0f1d33}.sheet-date{font-size:12px;font-weight:800;color:#64748b;margin-bottom:8px}.clear-btn{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:10px;padding:9px 12px;font-weight:900;cursor:pointer}
   .field{margin-bottom:8px}.name-control{margin-bottom:8px}.name-input-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.clear-name-btn{height:42px;min-width:54px;border:none;border-radius:10px;background:#fee2e2;color:#b91c1c;font-size:12px;font-weight:900;letter-spacing:.4px;cursor:pointer}.clear-name-btn:active{transform:scale(.96);background:#fecaca}.size-row{display:flex;align-items:center;gap:10px;margin-top:6px}.size-row input[type="range"]{flex:1;padding:0;border:none;background:transparent}.size-label{font-size:12px;font-weight:900;color:#64748b;min-width:44px;text-align:right}.field label{display:block;font-size:12px;font-weight:900;letter-spacing:.8px;color:#475569;margin-bottom:5px}
@@ -271,7 +271,7 @@ document.addEventListener('click',event=>{
 function exportBackup(){
   const payload={
     app:'Kennel Manager',
-    version:'v89-actually-smaller-moved-arrow',
+    version:'v91-modal-ghost-block-fix',
     exportedAt:new Date().toISOString(),
     activeDate,
     data:allData,
@@ -441,7 +441,7 @@ function updateMobileScale(resetZoom=false){
 }
 window.addEventListener('resize',()=>requestLayoutRefresh());
 window.addEventListener('orientationchange',()=>requestLayoutRefresh({resetPan:true,delay:260}));
-if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>requestLayoutRefresh())}
+if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{if(isModalOrMenuOpen())return;requestLayoutRefresh()})}
 function pinchDistance(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 function setupCanvasPinchZoom(){
   const board=$('board');
@@ -752,7 +752,63 @@ function attachKennelPressHandlers(el,n){
     }
   },true);
 }
-function render(){$('dateTitle').innerHTML=niceDate(activeDate);$('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';const board=$('board');board.innerHTML='';const dd=dayData();let total=0;KENNELS.forEach(k=>{const dog=dd[k.n]||{};const names=currentNames(dog);total+=names.length;const el=document.createElement('div');el.className=kennelClass(dog);el.id='k'+k.n;applyKennelLayout(el,k.n);el.innerHTML=kennelInnerHTML(k,dog);if(resizeMode)addResizeHandles(el,k.n);attachKennelPressHandlers(el,k.n);board.appendChild(el)});const t=document.createElement('div');t.className='header-total kennel total-canvas';t.id='ktotal';applyKennelLayout(t,'total');t.innerHTML='<div class="ht-label">TOTAL</div><div class="ht-count">'+total+'</div>';if(resizeMode)addResizeHandles(t,'total');board.appendChild(t)}
+function render(){
+  $('dateTitle').innerHTML=niceDate(activeDate);
+  $('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';
+  const board=$('board');
+  const dd=dayData();
+  const frag=document.createDocumentFragment();
+  let total=0;
+  KENNELS.forEach(k=>{
+    const dog=dd[k.n]||{};
+    const names=currentNames(dog);
+    total+=names.length;
+    const el=document.createElement('div');
+    el.className=kennelClass(dog);
+    el.id='k'+k.n;
+    applyKennelLayout(el,k.n);
+    el.innerHTML=kennelInnerHTML(k,dog);
+    if(resizeMode)addResizeHandles(el,k.n);
+    attachKennelPressHandlers(el,k.n);
+    frag.appendChild(el);
+  });
+  const t=document.createElement('div');
+  t.className='header-total kennel total-canvas';
+  t.id='ktotal';
+  applyKennelLayout(t,'total');
+  t.innerHTML='<div class="ht-label">TOTAL</div><div class="ht-count">'+total+'</div>';
+  if(resizeMode)addResizeHandles(t,'total');
+  frag.appendChild(t);
+  board.replaceChildren(frag);
+}
+function renderTotalTile(){
+  const t=$('ktotal');
+  if(!t){render();return}
+  const total=KENNELS.reduce((sum,k)=>sum+currentNames(dayData()[k.n]||{}).length,0);
+  t.className='header-total kennel total-canvas';
+  applyKennelLayout(t,'total');
+  t.innerHTML='<div class="ht-label">TOTAL</div><div class="ht-count">'+total+'</div>';
+  if(resizeMode)addResizeHandles(t,'total');
+}
+function renderKennel(n){
+  const el=$('k'+n);
+  const k=KENNELS.find(x=>x.n===n);
+  if(!el||!k){render();return}
+  const dog=dayData()[n]||{};
+  el.className=kennelClass(dog);
+  applyKennelLayout(el,n);
+  el.innerHTML=kennelInnerHTML(k,dog);
+  if(resizeMode)addResizeHandles(el,n);
+}
+function renderKennelAndTotal(n){
+  renderKennel(n);
+  renderTotalTile();
+}
+function renderKennelAndTotalAfterModal(n){
+  const run=()=>renderKennelAndTotal(n);
+  requestAnimationFrame(()=>requestAnimationFrame(run));
+}
+
 function toggleResizeMode(){resizeMode=!resizeMode;const mb=$('resizeMenuBtn');if(mb)mb.textContent=resizeMode?'Exit Resize Layout':'Resize Layout';$('board').classList.toggle('resize-mode',resizeMode);closeOverflowMenu();render()}
 function addResizeHandles(el,n){['n','s','e','w'].forEach(side=>{const h=document.createElement('div');h.className='resize-handle '+side;h.onpointerdown=e=>startResize(e,n,side);el.appendChild(h)});el.onpointerdown=e=>startDrag(e,n)}
 function startDrag(e,n){if(e.target.classList.contains('resize-handle'))return;e.stopPropagation();e.preventDefault();const r=kennelLayouts[n];dragging={n,startX:e.clientX,startY:e.clientY,start:{...r}};$('k'+n)?.classList.add('dragging');document.addEventListener('pointermove',doDrag,{passive:false});document.addEventListener('pointerup',stopDrag)}
@@ -821,10 +877,15 @@ function requestLayoutRefresh(options={}){
     refreshCanvasAfterViewportChange(runOptions);
   },delay);
 }
-function closeSheet(){
-  const overlay=$('sheetOverlay');
+function closeModalOverlay(overlay){
+  if(!overlay)return;
   releaseModalOpenGuard(overlay);
   overlay.classList.remove('open');
+  overlay.style.display='none';
+  requestAnimationFrame(()=>{overlay.style.display=''});
+}
+function closeSheet(){
+  closeModalOverlay($('sheetOverlay'));
   blurActiveControl();
   recoverCanvasAfterModal();
 }
@@ -849,14 +910,14 @@ function setupHapticFeedback(){
     else if(e.target.closest('#pickupTime,#dropoffTime,#incomingDropoffTime'))haptic('light');
   },{passive:true});
 }
-function saveKennel(){const names=getSheetNames();const sizes=getSheetSizes();const pickupTime=$('pickupTime').value;const dropoffTime=$('dropoffTime').value;const dd={...dayData()};const dog={...(dd[activeKennel]||{})};if(!names.length){delete dog.names;delete dog.sizes;delete dog.pickupTime;delete dog.dropoffTime;delete dog.time}else{dog.names=names;dog.sizes=sizes;dog.pickupTime=pickupTime;dog.dropoffTime=dropoffTime;dog.time=dd[activeKennel]?.time||new Date().toISOString()}const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeKennel]=cleaned;else delete dd[activeKennel];setDayData(dd);saveAll();haptic('success');closeSheet();render()}
-function clearKennel(){const dd={...dayData()};const dog={...(dd[activeKennel]||{})};delete dog.names;delete dog.sizes;delete dog.pickupTime;delete dog.dropoffTime;delete dog.time;const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeKennel]=cleaned;else delete dd[activeKennel];setDayData(dd);saveAll();haptic('clear');closeSheet();render()}
+function saveKennel(){const kennelNumber=activeKennel;const names=getSheetNames();const sizes=getSheetSizes();const pickupTime=$('pickupTime').value;const dropoffTime=$('dropoffTime').value;const dd={...dayData()};const dog={...(dd[kennelNumber]||{})};if(!names.length){delete dog.names;delete dog.sizes;delete dog.pickupTime;delete dog.dropoffTime;delete dog.time}else{dog.names=names;dog.sizes=sizes;dog.pickupTime=pickupTime;dog.dropoffTime=dropoffTime;dog.time=dd[kennelNumber]?.time||new Date().toISOString()}const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[kennelNumber]=cleaned;else delete dd[kennelNumber];setDayData(dd);saveAll();haptic('success');closeSheet();renderKennelAndTotalAfterModal(kennelNumber)}
+function clearKennel(){const kennelNumber=activeKennel;const dd={...dayData()};const dog={...(dd[kennelNumber]||{})};delete dog.names;delete dog.sizes;delete dog.pickupTime;delete dog.dropoffTime;delete dog.time;const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[kennelNumber]=cleaned;else delete dd[kennelNumber];setDayData(dd);saveAll();haptic('clear');closeSheet();renderKennelAndTotalAfterModal(kennelNumber)}
 function getIncomingSheetNames(){return [1,2,3,4].map(i=>capitalizeName($('incomingDogName'+i).value.trim())).filter(Boolean)}
 function openIncomingSheet(n){resetCanvasGestureState();activeIncomingKennel=n;const dog=dayData()[n]||{};const incoming=incomingData(dog);$('incomingSheetTitle').textContent='Kennel '+n+' — Incoming';$('incomingSheetDate').innerHTML=niceDate(activeDate);for(let i=1;i<=4;i++)$('incomingDogName'+i).value=incoming?.names?.[i-1]||'';$('incomingDropoffTime').value=incoming?.dropoffTime||'';$('incomingClearBtn').style.display=incoming?'block':'none';const overlay=$('incomingOverlay');overlay.classList.add('open');armModalOpenGuard(overlay);blurActiveControl();setTimeout(blurActiveControl,80)}
-function closeIncomingSheet(){const overlay=$('incomingOverlay');releaseModalOpenGuard(overlay);overlay.classList.remove('open');blurActiveControl();recoverCanvasAfterModal()}
+function closeIncomingSheet(){closeModalOverlay($('incomingOverlay'));blurActiveControl();recoverCanvasAfterModal()}
 function incomingOverlayClose(e){if(e.target.id==='incomingOverlay')closeIncomingSheet()}
-function saveIncomingKennel(){if(!activeIncomingKennel)return;const names=getIncomingSheetNames();const dropoffTime=$('incomingDropoffTime').value;const dd={...dayData()};const dog={...(dd[activeIncomingKennel]||{})};if(names.length){dog.incoming={names,dropoffTime}}else{delete dog.incoming}const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeIncomingKennel]=cleaned;else delete dd[activeIncomingKennel];setDayData(dd);saveAll();haptic('success');closeIncomingSheet();render()}
-function clearIncomingKennel(){if(!activeIncomingKennel)return;const dd={...dayData()};const dog={...(dd[activeIncomingKennel]||{})};delete dog.incoming;const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[activeIncomingKennel]=cleaned;else delete dd[activeIncomingKennel];setDayData(dd);saveAll();haptic('clear');closeIncomingSheet();render()}
+function saveIncomingKennel(){if(!activeIncomingKennel)return;const kennelNumber=activeIncomingKennel;const names=getIncomingSheetNames();const dropoffTime=$('incomingDropoffTime').value;const dd={...dayData()};const dog={...(dd[kennelNumber]||{})};if(names.length){dog.incoming={names,dropoffTime}}else{delete dog.incoming}const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[kennelNumber]=cleaned;else delete dd[kennelNumber];setDayData(dd);saveAll();haptic('success');closeIncomingSheet();renderKennelAndTotalAfterModal(kennelNumber)}
+function clearIncomingKennel(){if(!activeIncomingKennel)return;const kennelNumber=activeIncomingKennel;const dd={...dayData()};const dog={...(dd[kennelNumber]||{})};delete dog.incoming;const cleaned=cleanupKennelRecord(dog);if(cleaned)dd[kennelNumber]=cleaned;else delete dd[kennelNumber];setDayData(dd);saveAll();haptic('clear');closeIncomingSheet();renderKennelAndTotalAfterModal(kennelNumber)}
 
 function openCalendar(){resetCanvasGestureState();const d=dateFromKey(activeDate);calYear=d.getFullYear();calMonth=d.getMonth();calSelectedDate=activeDate;drawCalendar();$('calOverlay').classList.add('open')}
 function closeCalendar(){$('calOverlay').classList.remove('open')}
@@ -978,9 +1039,7 @@ function resetCanvasToHome(){
 }
 function recoverCanvasAfterModal(){
   resetCanvasToHome();
-  requestLayoutRefresh({resetPan:true,scrollTop:true});
-  setTimeout(()=>requestLayoutRefresh({resetPan:true,scrollTop:true}),300);
-  setTimeout(()=>requestLayoutRefresh({resetPan:true,scrollTop:true}),750);
+  requestLayoutRefresh({resetPan:true,scrollTop:true,delay:140});
 }
 const STARTUP_SPLASH_MIN_MS=850;
 const startupBootStarted=Date.now();
