@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v92-canvas-repaint-zoom-stability';
+const CACHE_NAME='kennel-manager-v93-code-audit-cleanup';
 const APP_SHELL = [
   './',
   './index.html',

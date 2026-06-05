@@ -1,0 +1,12 @@
+Kennel Manager – v93 code audit cleanup
+
+Changes in this version
+- Audited the v92 canvas repaint/zoom stability build without changing kennel data rules.
+- Removed unused partial-render helper code that was no longer called after the Android canvas repaint fix moved saves back to a guarded full-board render.
+- Removed the stale custom font-face request for Sansita-BlackItalic.ttf because the font file is not present in the package, preventing an unnecessary 404 asset request.
+- Added a small cleanup guard that clears pending layout refresh timers before post-modal canvas recovery, reducing stale resize/repaint work after closing sheets.
+- Updated cache/version references to v93 so GitHub Pages and the PWA service worker pull the new files cleanly.
+
+Audit notes
+- No intentional changes to kennel count logic, PU/DO behavior, incoming dogs, moved-arrow behavior, copy-to-tomorrow behavior, saved layout storage, or icon files.
+- Removed only code/assets references that were unused or invalid in the current uploaded package.
