@@ -1,5 +1,0 @@
-/* v94 POSS? visual-impact audit
-   - Added red highlight styling when PU/DO dropdown is set to "Poss?"
-   - Added lightweight JS listener to toggle visual state dynamically
-   - No kennel logic, storage, counts, PU/DO rules, or incoming-dog behavior changed
-*/
