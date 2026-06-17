@@ -467,9 +467,23 @@ function updateMobileScale(resetZoom=false){
 }
 window.addEventListener('resize',()=>requestLayoutRefresh());
 window.addEventListener('orientationchange',()=>requestLayoutRefresh({resetPan:true,forceRender:true,delay:300}));
-window.addEventListener('focus',()=>setTimeout(()=>{ensureCanvasIntegrity();forceCanvasCompositorReset();},120));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>{ensureCanvasIntegrity();forceCanvasCompositorReset();},160)});
-if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{if(isModalOrMenuOpen())return;requestLayoutRefresh()})}
+let resumeRecoveryTimer=null;
+function scheduleResumeRecovery(delay=300){
+  clearTimeout(resumeRecoveryTimer);
+  resumeRecoveryTimer=setTimeout(()=>{
+    requestLayoutRefresh({forceRender:true,delay:0});
+    ensureCanvasIntegrity();
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        ensureCanvasIntegrity();
+        forceCanvasCompositorReset();
+      });
+    });
+  },delay);
+}
+window.addEventListener('focus',()=>scheduleResumeRecovery(350));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleResumeRecovery(450)});
+if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{if(isModalOrMenuOpen())return;requestLayoutRefresh({delay:250})})}
 function pinchDistance(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 function setupCanvasPinchZoom(){
   const board=$('board');
