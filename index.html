@@ -468,21 +468,29 @@ function updateMobileScale(resetZoom=false){
 window.addEventListener('resize',()=>requestLayoutRefresh());
 window.addEventListener('orientationchange',()=>requestLayoutRefresh({resetPan:true,forceRender:true,delay:300}));
 let resumeRecoveryTimer=null;
-function scheduleResumeRecovery(delay=300){
+let resumeRecoveryLock=false;
+let lastResumeRecovery=0;
+function scheduleResumeRecovery(delay=250){
+  const now=Date.now();
+  if(resumeRecoveryLock||now-lastResumeRecovery<1500)return;
   clearTimeout(resumeRecoveryTimer);
+  resumeRecoveryLock=true;
   resumeRecoveryTimer=setTimeout(()=>{
+    lastResumeRecovery=Date.now();
     requestLayoutRefresh({forceRender:true,delay:0});
     ensureCanvasIntegrity();
     requestAnimationFrame(()=>{
       requestAnimationFrame(()=>{
         ensureCanvasIntegrity();
         forceCanvasCompositorReset();
+        resumeRecoveryLock=false;
       });
     });
   },delay);
 }
-window.addEventListener('focus',()=>scheduleResumeRecovery(350));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleResumeRecovery(450)});
+window.addEventListener('focus',()=>scheduleResumeRecovery(250));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleResumeRecovery(250)});
+window.addEventListener('pageshow',()=>scheduleResumeRecovery(250));
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{if(isModalOrMenuOpen())return;requestLayoutRefresh({delay:250})})}
 function pinchDistance(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 function setupCanvasPinchZoom(){
