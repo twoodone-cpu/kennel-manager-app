@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v95-audit-cleanup';
+const CACHE_NAME='kennel-manager-v96-flicker-fix';
 const APP_SHELL = [
   './',
   './index.html',

@@ -477,14 +477,13 @@ function scheduleResumeRecovery(delay=250){
   resumeRecoveryLock=true;
   resumeRecoveryTimer=setTimeout(()=>{
     lastResumeRecovery=Date.now();
-    requestLayoutRefresh({forceRender:true,delay:0});
-    ensureCanvasIntegrity();
+    clearPendingLayoutRefresh();
+    updateMobileScale();
+    updateZoomHeaderVisibility();
+    render();
     requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{
-        ensureCanvasIntegrity();
-        forceCanvasCompositorReset();
-        resumeRecoveryLock=false;
-      });
+      ensureCanvasIntegrity();
+      resumeRecoveryLock=false;
     });
   },delay);
 }
@@ -1134,9 +1133,8 @@ function stabilizeStartupLayout(){
       document.documentElement.classList.remove('app-booting');
       hideStartupSplash();
       setTimeout(()=>{
-        refreshCanvasAfterViewportChange({forceRender:true});
+        updateMobileScale();
         updateZoomHeaderVisibility();
-        forceCanvasCompositorReset();
       },300);
     },remaining);
   };
@@ -1163,7 +1161,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=93').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=96').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);
