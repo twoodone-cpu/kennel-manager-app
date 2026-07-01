@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kennel Manager">
-<link rel="manifest" href="manifest.webmanifest?v=97">
+<link rel="manifest" href="manifest.webmanifest?v=92">
 <link rel="icon" type="image/png" sizes="192x192" href="app-icon-192.png?v=92">
 <link rel="icon" type="image/png" sizes="512x512" href="app-icon-512.png?v=92">
 <link rel="apple-touch-icon" href="app-icon-512.png?v=92">
@@ -455,15 +455,12 @@ function updateMobileScale(resetZoom=false){
 
   const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
   const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  const NATURAL_BOARD_HEIGHT = 1260;
-  const widthScale = (viewportWidth - 16) / 980;
+  const baseScale = Math.min(.83, (viewportWidth - 16) / 980);
   const topbar = document.querySelector('.topbar');
   const topbarVisibleHeight = topbar ? topbar.getBoundingClientRect().height + 18 : 0;
 
   const visibleBoardHeight = Math.max(520, viewportHeight - topbarVisibleHeight - 8);
-  const heightScale = visibleBoardHeight / NATURAL_BOARD_HEIGHT;
-  const baseScale = Math.min(.83, widthScale, heightScale);
-  const boardHeight = Math.max(NATURAL_BOARD_HEIGHT, visibleBoardHeight / baseScale);
+  const boardHeight = Math.max(1260, visibleBoardHeight / baseScale);
 
   document.body.style.setProperty('--mobile-scale',baseScale);
   document.body.style.setProperty('--board-height',boardHeight+'px');
@@ -480,13 +477,14 @@ function scheduleResumeRecovery(delay=250){
   resumeRecoveryLock=true;
   resumeRecoveryTimer=setTimeout(()=>{
     lastResumeRecovery=Date.now();
-    clearPendingLayoutRefresh();
-    updateMobileScale();
-    updateZoomHeaderVisibility();
-    render();
+    requestLayoutRefresh({forceRender:true,delay:0});
+    ensureCanvasIntegrity();
     requestAnimationFrame(()=>{
-      ensureCanvasIntegrity();
-      resumeRecoveryLock=false;
+      requestAnimationFrame(()=>{
+        ensureCanvasIntegrity();
+        forceCanvasCompositorReset();
+        resumeRecoveryLock=false;
+      });
     });
   },delay);
 }
@@ -1136,8 +1134,9 @@ function stabilizeStartupLayout(){
       document.documentElement.classList.remove('app-booting');
       hideStartupSplash();
       setTimeout(()=>{
-        updateMobileScale();
+        refreshCanvasAfterViewportChange({forceRender:true});
         updateZoomHeaderVisibility();
+        forceCanvasCompositorReset();
       },300);
     },remaining);
   };
@@ -1164,7 +1163,7 @@ setupDaySwipeNavigation();
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=96').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=93').then(reg => {
       reg.update().catch(() => {});
     }).catch(err => {
       console.log('Service worker registration failed:', err);

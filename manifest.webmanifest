@@ -4,7 +4,7 @@
   "description": "Personal kennel management board",
   "start_url": "./index.html?v=95",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#5A3E6B",
   "theme_color": "#5A3E6B",
