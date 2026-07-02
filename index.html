@@ -480,11 +480,9 @@ function scheduleResumeRecovery(delay=250){
     requestLayoutRefresh({forceRender:true,delay:0});
     ensureCanvasIntegrity();
     requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{
-        ensureCanvasIntegrity();
-        forceCanvasCompositorReset();
-        resumeRecoveryLock=false;
-      });
+      ensureCanvasIntegrity();
+      forceCanvasCompositorReset();
+      resumeRecoveryLock=false;
     });
   },delay);
 }
