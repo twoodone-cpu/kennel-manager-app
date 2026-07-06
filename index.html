@@ -467,28 +467,70 @@ function updateMobileScale(resetZoom=false){
 }
 window.addEventListener('resize',()=>requestLayoutRefresh());
 window.addEventListener('orientationchange',()=>requestLayoutRefresh({resetPan:true,forceRender:true,delay:300}));
+
+const RESUME_DIAGNOSTIC_KEY='kennel_resume_diagnostics_v102';
+let resumeDiagnosticRenderReason='direct';
+function resumeDiagnosticLog(type,details={}){
+  const entry={
+    t:new Date().toISOString(),
+    ms:Date.now(),
+    type,
+    hidden:document.hidden,
+    visibilityState:document.visibilityState,
+    ...details
+  };
+  try{
+    const list=JSON.parse(localStorage.getItem(RESUME_DIAGNOSTIC_KEY)||'[]');
+    list.push(entry);
+    localStorage.setItem(RESUME_DIAGNOSTIC_KEY,JSON.stringify(list.slice(-120)));
+  }catch(err){
+    try{console.warn('Resume diagnostic log failed',err)}catch{}
+  }
+  try{console.debug('[ResumeDiag]',entry)}catch{}
+}
+function markResumeDiagnosticRender(reason){
+  resumeDiagnosticRenderReason=reason||'direct';
+}
+window.KennelResumeDiagnostics={
+  key:RESUME_DIAGNOSTIC_KEY,
+  read(){try{return JSON.parse(localStorage.getItem(RESUME_DIAGNOSTIC_KEY)||'[]')}catch{return[]}},
+  clear(){try{localStorage.removeItem(RESUME_DIAGNOSTIC_KEY)}catch{}},
+  print(){try{console.table(this.read())}catch{console.log(this.read())}}
+};
 let resumeRecoveryTimer=null;
 let resumeRecoveryLock=false;
 let lastResumeRecovery=0;
-function scheduleResumeRecovery(delay=250){
+function scheduleResumeRecovery(delay=250,source='unknown'){
   const now=Date.now();
-  if(resumeRecoveryLock||now-lastResumeRecovery<1500)return;
+  const sinceLast=now-lastResumeRecovery;
+  resumeDiagnosticLog('resume-event',{source,delay,accepted:false,blocked:false,sinceLast,resumeRecoveryLock});
+  if(resumeRecoveryLock||sinceLast<1500){
+    resumeDiagnosticLog('resume-blocked',{source,reason:resumeRecoveryLock?'lock':'cooldown',sinceLast,resumeRecoveryLock});
+    return;
+  }
   clearTimeout(resumeRecoveryTimer);
   resumeRecoveryLock=true;
+  resumeDiagnosticLog('resume-accepted',{source,delay,sinceLast});
   resumeRecoveryTimer=setTimeout(()=>{
     lastResumeRecovery=Date.now();
+    resumeDiagnosticLog('resume-recovery-start',{source});
+    markResumeDiagnosticRender('resume:'+source);
     requestLayoutRefresh({forceRender:true,delay:0});
     ensureCanvasIntegrity();
     requestAnimationFrame(()=>{
       ensureCanvasIntegrity();
       forceCanvasCompositorReset();
       resumeRecoveryLock=false;
+      resumeDiagnosticLog('resume-recovery-complete',{source});
     });
   },delay);
 }
-window.addEventListener('focus',()=>scheduleResumeRecovery(250));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleResumeRecovery(250)});
-window.addEventListener('pageshow',()=>scheduleResumeRecovery(250));
+window.addEventListener('focus',()=>scheduleResumeRecovery(250,'focus'));
+document.addEventListener('visibilitychange',()=>{
+  resumeDiagnosticLog('visibilitychange',{state:document.visibilityState,hidden:document.hidden});
+  if(!document.hidden)scheduleResumeRecovery(250,'visibilitychange');
+});
+window.addEventListener('pageshow',event=>scheduleResumeRecovery(250,event.persisted?'pageshow-persisted':'pageshow'));
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{if(isModalOrMenuOpen())return;requestLayoutRefresh({delay:250})})}
 function pinchDistance(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 function setupCanvasPinchZoom(){
@@ -801,6 +843,8 @@ function attachKennelPressHandlers(el,n){
   },true);
 }
 function render(){
+  resumeDiagnosticLog('render-start',{reason:resumeDiagnosticRenderReason});
+  resumeDiagnosticRenderReason='direct';
   $('dateTitle').innerHTML=niceDate(activeDate);
   $('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';
   const board=$('board');
@@ -887,7 +931,10 @@ function refreshCanvasAfterViewportChange(options={}){
     setCanvasPan(p.x,p.y);
   }
   updateZoomHeaderVisibility();
-  if(options.forceRender)render();
+  if(options.forceRender){
+    markResumeDiagnosticRender(resumeDiagnosticRenderReason==='direct'?'layout-refresh':resumeDiagnosticRenderReason);
+    render();
+  }
   if(options.scrollTop)window.scrollTo(0,0);
 }
 let layoutRefreshTimer=null;
@@ -904,9 +951,11 @@ function requestLayoutRefresh(options={}){
   };
   clearTimeout(layoutRefreshTimer);
   const delay=Number.isFinite(options.delay)?options.delay:120;
+  resumeDiagnosticLog('layout-refresh-scheduled',{delay,options:{...pendingLayoutRefresh}});
   layoutRefreshTimer=setTimeout(()=>{
     const runOptions={...pendingLayoutRefresh};
     pendingLayoutRefresh={resetPan:false,forceRender:false,scrollTop:false};
+    resumeDiagnosticLog('layout-refresh-run',{options:runOptions});
     refreshCanvasAfterViewportChange(runOptions);
   },delay);
 }
@@ -935,7 +984,9 @@ function ensureCanvasIntegrity(){
   const rect=board.getBoundingClientRect();
   const badRect=!Number.isFinite(rect.width)||!Number.isFinite(rect.height)||rect.width<120||rect.height<240;
   if(badChildren||badRect){
+    resumeDiagnosticLog('canvas-integrity-failed',{badChildren,badRect,childCount:board.children.length,width:rect.width,height:rect.height});
     resetCanvasToHome();
+    markResumeDiagnosticRender('canvas-integrity');
     render();
     forceCanvasCompositorReset();
   }

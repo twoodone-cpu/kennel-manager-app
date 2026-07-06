@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v95-audit-cleanup';
+const CACHE_NAME='kennel-manager-v102-resume-diagnostics';
 const APP_SHELL = [
   './',
   './index.html',
