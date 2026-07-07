@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v102-1-diagnostic-log';
+const CACHE_NAME='kennel-manager-v103-resume-render-coalescing';
 const APP_SHELL = [
   './',
   './index.html',

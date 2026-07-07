@@ -575,6 +575,12 @@ window.KennelResumeDiagnostics={
 let resumeRecoveryTimer=null;
 let resumeRecoveryLock=false;
 let lastResumeRecovery=0;
+let resumeRecoveryActive=false;
+let resumeRenderCoalesceUntil=0;
+let resumeRenderAlreadyDone=false;
+function isResumeRenderCoalescing(){
+  return Date.now()<resumeRenderCoalesceUntil;
+}
 function scheduleResumeRecovery(delay=250,source='unknown'){
   const now=Date.now();
   const sinceLast=now-lastResumeRecovery;
@@ -588,6 +594,10 @@ function scheduleResumeRecovery(delay=250,source='unknown'){
   resumeDiagnosticLog('resume-accepted',{source,delay,sinceLast});
   resumeRecoveryTimer=setTimeout(()=>{
     lastResumeRecovery=Date.now();
+    resumeRecoveryActive=true;
+    resumeRenderAlreadyDone=false;
+    resumeRenderCoalesceUntil=Date.now()+900;
+    clearPendingLayoutRefresh();
     resumeDiagnosticLog('resume-recovery-start',{source});
     markResumeDiagnosticRender('resume:'+source);
     requestLayoutRefresh({forceRender:true,delay:0});
@@ -596,6 +606,8 @@ function scheduleResumeRecovery(delay=250,source='unknown'){
       ensureCanvasIntegrity();
       forceCanvasCompositorReset();
       resumeRecoveryLock=false;
+      resumeRecoveryActive=false;
+      resumeRenderCoalesceUntil=Math.max(resumeRenderCoalesceUntil,Date.now()+700);
       resumeDiagnosticLog('resume-recovery-complete',{source});
     });
   },delay);
@@ -918,7 +930,14 @@ function attachKennelPressHandlers(el,n){
   },true);
 }
 function render(){
-  resumeDiagnosticLog('render-start',{reason:resumeDiagnosticRenderReason});
+  const renderReason=resumeDiagnosticRenderReason;
+  if(isResumeRenderCoalescing()&&resumeRenderAlreadyDone&&['direct','layout-refresh','canvas-integrity'].includes(renderReason)){
+    resumeDiagnosticLog('render-skipped',{reason:renderReason,coalesced:true});
+    resumeDiagnosticRenderReason='direct';
+    return;
+  }
+  if(isResumeRenderCoalescing())resumeRenderAlreadyDone=true;
+  resumeDiagnosticLog('render-start',{reason:renderReason});
   resumeDiagnosticRenderReason='direct';
   $('dateTitle').innerHTML=niceDate(activeDate);
   $('todayBadgeContainer').innerHTML=activeDate===todayKey()?'<span class="today-badge">TODAY</span>':'';
@@ -1061,6 +1080,11 @@ function ensureCanvasIntegrity(){
   if(badChildren||badRect){
     resumeDiagnosticLog('canvas-integrity-failed',{badChildren,badRect,childCount:board.children.length,width:rect.width,height:rect.height});
     resetCanvasToHome();
+    if(resumeRecoveryActive||isResumeRenderCoalescing()){
+      resumeDiagnosticLog('canvas-integrity-deferred',{reason:'resume-coalescing'});
+      forceCanvasCompositorReset();
+      return;
+    }
     markResumeDiagnosticRender('canvas-integrity');
     render();
     forceCanvasCompositorReset();
