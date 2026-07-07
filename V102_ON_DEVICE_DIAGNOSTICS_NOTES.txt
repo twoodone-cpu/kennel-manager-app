@@ -1,7 +1,7 @@
-V102 – Resume Diagnostics Completed Properly
+V102 – Diagnostic Log Completed Properly
 
 Changes made:
-- Added an on-device Resume Diagnostics viewer to the app overflow menu.
+- Added an on-device Diagnostic Log viewer to the app overflow menu.
 - Added Copy Log, Refresh, and Clear controls.
 - Diagnostic log remains stored in localStorage under: kennel_resume_diagnostics_v102.
 - Viewer displays the latest resume/render diagnostic entries directly on the phone.
@@ -10,7 +10,7 @@ Changes made:
 
 How to use on phone:
 1. After a flicker/blink happens, open the three-dot menu.
-2. Tap Resume Diagnostics.
+2. Tap Diagnostic Log.
 3. Tap Copy Log.
 4. Paste the copied log into chat.
 
@@ -18,6 +18,6 @@ Audit:
 - No kennel layout changes.
 - No localStorage data migration changes.
 - No normal app behavior changes intended.
-- Only visible UI addition is the Resume Diagnostics menu item and viewer.
+- Only visible UI addition is the Diagnostic Log menu item and viewer.
 - Existing V102 logging remains intact.
 - Inline JavaScript syntax check passed with node --check.

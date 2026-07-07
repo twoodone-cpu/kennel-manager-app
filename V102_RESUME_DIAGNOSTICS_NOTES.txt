@@ -1,7 +1,7 @@
-V102 – Resume Diagnostics
+V102 – Diagnostic Log
 
 Changes made:
-- Added lightweight resume diagnostics inside index.html.
+- Added lightweight diagnostic log inside index.html.
 - Logs focus, visibilitychange, pageshow, resume accepted/blocked decisions, layout refresh scheduling/runs, render starts, and canvas integrity failures.
 - Added window.KennelResumeDiagnostics helper:
   - KennelResumeDiagnostics.read()

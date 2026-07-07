@@ -1,4 +1,4 @@
-const CACHE_NAME='kennel-manager-v102-resume-diagnostics-on-device';
+const CACHE_NAME='kennel-manager-v102-1-diagnostic-log';
 const APP_SHELL = [
   './',
   './index.html',
