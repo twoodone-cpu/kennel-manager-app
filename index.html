@@ -621,6 +621,7 @@ function scheduleResumeRecovery(delay=250,source='unknown'){
     ensureCanvasIntegrity();
     requestAnimationFrame(()=>{
       ensureCanvasIntegrity();
+      forceCanvasCompositorReset();
       resumeRecoveryLock=false;
       resumeRecoveryActive=false;
       resumeRenderCoalesceUntil=Math.max(resumeRenderCoalesceUntil,Date.now()+700);
