@@ -1194,6 +1194,7 @@ function setupDaySwipeNavigation(){
     if(Math.abs(dx)<MIN_SWIPE_DISTANCE)return;
     if(Math.abs(dy)>MAX_VERTICAL_DRIFT)return;
     if(Math.abs(dx)<Math.abs(dy)*1.45)return;
+    if(isResumeRenderCoalescing())return;
 
     suppressNextKennelClick=true;
     closeOverflowMenu();
@@ -1203,6 +1204,10 @@ function setupDaySwipeNavigation(){
 
   ['pointercancel','lostpointercapture'].forEach(type=>{
     board.addEventListener(type,()=>{swipeStart=null},{passive:true});
+  });
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)swipeStart=null;
   });
 
   document.addEventListener('click',e=>{
