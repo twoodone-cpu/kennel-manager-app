@@ -195,7 +195,9 @@ let resetCanvasGestureState=()=>{};
 function key(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function todayKey(){return key(new Date())}
 function dateFromKey(k){const parts=k.split('-').map(Number);return new Date(parts[0],parts[1]-1,parts[2])}
+let clockPaused=false;
 function updateClock(){
+  if(clockPaused)return;
   const el=$('clockLine');
   if(!el)return;
   const now=new Date();
@@ -1216,6 +1218,8 @@ function animateDaySlide(dir){
   const dateCenter=document.querySelector('.date-center');
   if(!board||getCanvasZoom()>1.01)return;
 
+  clockPaused=true;
+
   const shift=dir>0?'72px':'-72px';
   const easing='cubic-bezier(.2,.85,.2,1)';
 
@@ -1249,6 +1253,7 @@ function animateDaySlide(dir){
       dateCenter.style.transform='';
       dateCenter.style.opacity='';
     }
+    clockPaused=false;
   },320);
 }
 function moveDay(dir){const d=dateFromKey(activeDate);d.setDate(d.getDate()+dir);activeDate=key(d);render();animateDaySlide(dir)}
