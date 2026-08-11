@@ -803,6 +803,7 @@ function statusMarkup(label,value){
   return `<span class="status-chip ${kind}">${displayLabel}</span>${showTime}`;
 }
 function isTurnoverKennel(dog){return currentNames(dog).length>0&&!!dog?.pickupTime&&!!incomingData(dog)}
+function hasIncomingOverlay(dog){return currentNames(dog).length>0&&!!incomingData(dog)}
 function kennelClass(dog){const names=currentNames(dog);const hasCurrent=names.length>0;const pickupState=hasCurrent&&dog?.pickupTime;return 'kennel '+(!hasCurrent?'empty':pickupState?'pickup':'occupied')+(isTurnoverKennel(dog)?' turnover':'')+((hasCurrent&&(dog?.pickupTime||dog?.dropoffTime))?' has-times':'')+((hasCurrent&&dog?.dropoffTime&&!isTurnoverKennel(dog))?' do-active':'')}
 function turnoverFontSize(rawSize,count,kennelNumber,section){
   const base=Number(rawSize)||defaultDogSize(count,kennelNumber);
@@ -827,7 +828,7 @@ function turnoverInnerHTML(k,dog,incoming){
     incomingMarkerMarkup(incoming,true)+
     `<div class="turnover-incoming">${turnoverNamesMarkup(incomingNames,incomingSizes,k.n,'incoming')}${incomingStatus?`<div class="turnover-status">${incomingStatus}</div>`:''}</div>`;
 }
-function kennelInnerHTML(k,dog){const names=currentNames(dog),sizes=dog?.sizes||[];const status=(names.length?statusMarkup('PU',dog.pickupTime)+statusMarkup('DO',dog.dropoffTime):'');const incoming=incomingData(dog);const tagClass=k.tag==='TALL'?'tag-tall':k.tag==='BOX'?'tag-box':k.tag==='BIRD'?'tag-bird':'';if(isTurnoverKennel(dog))return turnoverInnerHTML(k,dog,incoming);return `<div class="num">${k.n}</div>`+(incoming?incomingMarkerMarkup(incoming):'')+(names.length?`<div class="dog names-${names.length}">${names.map((name,idx)=>`<div class="dog-slot" style="font-size:${sizes[idx]||defaultDogSize(names.length,k.n)}px">${esc(name)}</div>`).join('')}</div>${status?`<div class="kennel-times">${status}</div>`:''}`:'')+(k.tag?`<div class="tag ${tagClass}">${k.tag}</div>`:'')}
+function kennelInnerHTML(k,dog){const names=currentNames(dog),sizes=dog?.sizes||[];const status=(names.length?statusMarkup('PU',dog.pickupTime)+statusMarkup('DO',dog.dropoffTime):'');const incoming=incomingData(dog);const tagClass=k.tag==='TALL'?'tag-tall':k.tag==='BOX'?'tag-box':k.tag==='BIRD'?'tag-bird':'';if(hasIncomingOverlay(dog))return turnoverInnerHTML(k,dog,incoming);return `<div class="num">${k.n}</div>`+(incoming?incomingMarkerMarkup(incoming):'')+(names.length?`<div class="dog names-${names.length}">${names.map((name,idx)=>`<div class="dog-slot" style="font-size:${sizes[idx]||defaultDogSize(names.length,k.n)}px">${esc(name)}</div>`).join('')}</div>${status?`<div class="kennel-times">${status}</div>`:''}`:'')+(k.tag?`<div class="tag ${tagClass}">${k.tag}</div>`:'')}
 function attachKennelPressHandlers(el,n){
   let timer=null;
   let startX=0,startY=0;
