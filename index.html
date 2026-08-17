@@ -799,7 +799,7 @@ function statusMarkup(label,value){
   if(!value)return '';
   const kind=label.toLowerCase();
   const displayLabel=label==='PU'?'PICK-UP':label==='DO'?'DROP-OFF':label;
-  const possClass=value==='Poss?' ? ' poss-red' : ''; const afternoonClass=(kind==='pu'&&value==='5-530') ? ' pu-afternoon' : ''; const showTime=value!==label?`<span class="status-time ${kind}${possClass}${afternoonClass}">${esc(value)}</span>`:'';
+  const possClass=value==='Poss?' ? ' poss-red' : ''; const afternoonClass=(value==='5-530') ? ' pu-afternoon' : ''; const showTime=value!==label?`<span class="status-time ${kind}${possClass}${afternoonClass}">${esc(value)}</span>`:'';
   return `<span class="status-chip ${kind}">${displayLabel}</span>${showTime}`;
 }
 function isTurnoverKennel(dog){return currentNames(dog).length>0&&!!dog?.pickupTime&&!!incomingData(dog)}
